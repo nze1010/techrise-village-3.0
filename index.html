@@ -811,7 +811,6 @@
         <ul class="nav-links">
           <li><a href="#mission">Mission</a></li>
           <li><a href="#village-hut">🛖 Village Hut</a></li>
-          <li><a href="#join">Join Village</a></li>
           <li><a href="#directory">Village Square</a></li>
         </ul>
       </nav>
@@ -820,7 +819,7 @@
         <button id="user-inbox-btn" onclick="openInboxModal()" style="background: rgba(31,174,122,0.1); border: 1px solid rgba(31,174,122,0.3); color: #1FAE7A; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">✉️  My Inbox</button>
         <!-- Secret Admin Button (Hidden by default, unlocked via /admin or Ctrl+Shift+A) -->
         <button id="admin-login-btn" onclick="openAdminModal()" style="display: none; background: transparent; border: 1px solid rgba(242,183,5,0.3); color: #F2B705; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">👑 Master Admin</button>
-        <a href="#join" class="btn btn-gold" id="desktop-join-btn">Join Villa</a>
+        <button onclick="openJoinModal()" class="btn btn-gold" id="desktop-join-btn" style="cursor: pointer; border: none;">Join Villa</button>
         <button id="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(242,183,5,0.3); color: #F2B705; font-size: 1.2rem; padding: 6px 10px; border-radius: 8px; cursor: pointer;">
           ☰
         </button>
@@ -831,11 +830,10 @@
     <div id="mobile-nav-drawer" style="display: none; background: rgba(10, 15, 30, 0.96); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(242, 183, 5, 0.3); padding: 1.25rem; flex-direction: column; gap: 0.85rem; text-align: center;">
       <a href="#mission" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🎯 Mission</a>
       <a href="#village-hut" onclick="toggleMobileMenu()" style="color: #F2B705; font-size: 1rem; text-decoration: none; font-weight: 700;">🛖 Village Hut (Town Hall)</a>
-      <a href="#join" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">📍 Join Village</a>
       <a href="#directory" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🏙️ Village Square (Directory)</a>
       <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
         <button onclick="toggleMobileMenu(); openInboxModal();" style="flex:1; background: rgba(31,174,122,0.15); border: 1px solid #1FAE7A; color: #1FAE7A; padding: 8px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">✉️  My Inbox</button>
-        <a href="#join" onclick="toggleMobileMenu()" class="btn btn-gold" style="flex:1; padding: 8px; font-size: 0.85rem;">Join Villa</a>
+        <button onclick="toggleMobileMenu(); openJoinModal();" class="btn btn-gold" style="flex:1; padding: 8px; font-size: 0.85rem;">Join Villa</button>
       </div>
     </div>
   </header>
@@ -1103,11 +1101,11 @@
         <h3 style="color: #1FAE7A; margin-bottom: 0.5rem;">📩 Resident Private Inbox</h3>
         <p style="color: #8B93A7; font-size: 0.85rem; margin-bottom: 1.25rem;">Select your name and enter your 4-Digit Security PIN to view messages sent to your profile.</p>
 
-        <div class="edit-field">
+        <div class="edit-field" style="position:relative; margin-bottom:0.85rem;">
           <label style="color:#CBD5E1;">Select Your Resident Profile</label>
-          <select id="inbox-member-select" class="form-select" style="margin-bottom:0.85rem;">
-            <option value="">-- Select Your Name --</option>
-          </select>
+          <input type="text" id="inbox-search-input" class="form-input" placeholder="🔍 Type your name to search..." oninput="filterInboxCombobox(this.value)" onfocus="filterInboxCombobox(this.value)" autocomplete="off">
+          <input type="hidden" id="inbox-member-select">
+          <div id="inbox-combobox-list" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:220px; overflow-y:auto; background:#131B2F; border:1px solid #1FAE7A; border-radius:8px; z-index:1050; box-shadow:0 10px 25px rgba(0,0,0,0.7); margin-top:4px;"></div>
         </div>
         <div class="edit-field">
           <label style="color:#CBD5E1;">Your 4-Digit PIN</label>
@@ -1126,6 +1124,96 @@
           <!-- Loaded dynamically -->
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Join Village Registration Modal -->
+  <div id="join-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 580px;">
+      <button onclick="closeJoinModal()" class="modal-close">✕</button>
+      <h3 class="form-title" style="color: #F2B705; margin-bottom: 0.25rem;">Join The Village</h3>
+      <p class="form-subtitle" style="color: #8B93A7; font-size: 0.85rem; margin-bottom: 1.25rem;">Fill out your details to publish your resident profile to the official directory.</p>
+
+      <form id="member-form">
+        <div class="form-group">
+          <label class="form-label" for="fullName">Full Name <span class="req">*</span></label>
+          <input type="text" id="fullName" class="form-input" placeholder="e.g. Engr Josiah Collins Chinaza" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profession">Profession / Skill Track <span class="req">*</span></label>
+          <select id="profession" class="form-select" required>
+            <option value="" disabled selected>Select your track / specialty</option>
+            <option value="AI & Machine Learning">AI & Machine Learning</option>
+            <option value="Computer Aided Design and Manufacturing">Computer Aided Design and Manufacturing (CAD/CAM)</option>
+            <option value="Creative Arts: 2D & 3D Animation">Creative Arts: 2D & 3D Animation</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="Enterprise Python: Backend Development">Enterprise Python: Backend Development</option>
+            <option value="Fullstack Web Development with JavaScript">Fullstack Web Development with JavaScript</option>
+            <option value="UI/UX Design">UI/UX Design</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="lga">LGA (Local Government Area) <span class="req">*</span></label>
+          <select id="lga" class="form-select" required>
+            <option value="" disabled selected>Select your LGA</option>
+            <option value="Aba North">Aba North</option>
+            <option value="Aba South">Aba South</option>
+            <option value="Arochukwu">Arochukwu</option>
+            <option value="Bende">Bende</option>
+            <option value="Ikwuano">Ikwuano</option>
+            <option value="Isiala Ngwa North">Isiala Ngwa North</option>
+            <option value="Isiala Ngwa South">Isiala Ngwa South</option>
+            <option value="Isuikwuato">Isuikwuato</option>
+            <option value="Obi Ngwa">Obi Ngwa</option>
+            <option value="Ohafia">Ohafia</option>
+            <option value="Osisioma Ngwa">Osisioma Ngwa</option>
+            <option value="Ugwunagbo">Ugwunagbo</option>
+            <option value="Ukwa East">Ukwa East</option>
+            <option value="Ukwa West">Ukwa West</option>
+            <option value="Umuahia North">Umuahia North</option>
+            <option value="Umuahia South">Umuahia South</option>
+            <option value="Umunneochi">Umunneochi</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number</label>
+          <input type="tel" id="phone" class="form-input" placeholder="e.g. +234 803 123 4567">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="photo-file">Profile Picture 📸</label>
+          <input type="file" id="photo-file" class="form-input" accept="image/*">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="linkedin">LinkedIn Profile URL</label>
+          <input type="text" id="linkedin" class="form-input" placeholder="linkedin.com/in/username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="facebook">Facebook Profile URL</label>
+          <input type="text" id="facebook" class="form-input" placeholder="facebook.com/username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="portfolio">Portfolio / Website URL</label>
+          <input type="text" id="portfolio" class="form-input" placeholder="github.com/username">
+        </div>
+
+        <div class="form-group" style="background: rgba(242, 183, 5, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(242, 183, 5, 0.2);">
+          <label class="form-label" for="securityPin" style="color: #F2B705;">Create 4-Digit Security PIN <span class="req">*</span></label>
+          <input type="password" id="securityPin" class="form-input" maxlength="4" pattern="[0-9]{4}" placeholder="4-Digit PIN (e.g. 1234)" required>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-gold" style="width: 100%;">
+          Publish Resident Profile 🚀
+        </button>
+
+        <div id="form-status" class="status-msg"></div>
+      </form>
     </div>
   </div>
 
@@ -1228,11 +1316,11 @@
 
             <form id="village-hut-form" onsubmit="handlePostToVillageHut(event)">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
-                <div>
+                <div style="position:relative;">
                   <label class="form-label">Your Resident Profile <span class="req">*</span></label>
-                  <select id="hut-author-select" class="form-select" required>
-                    <option value="">-- Select Your Name --</option>
-                  </select>
+                  <input type="text" id="hut-search-input" class="form-input" placeholder="🔍 Type your name to search..." oninput="filterHutCombobox(this.value)" onfocus="filterHutCombobox(this.value)" autocomplete="off">
+                  <input type="hidden" id="hut-author-select">
+                  <div id="hut-combobox-list" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:220px; overflow-y:auto; background:#131B2F; border:1px solid #F2B705; border-radius:8px; z-index:1050; box-shadow:0 10px 25px rgba(0,0,0,0.7); margin-top:4px;"></div>
                 </div>
                 <div>
                   <label class="form-label">Topic Tag</label>
@@ -1280,105 +1368,22 @@
       </div>
     </section>
 
-    <!-- Join Section -->
-    <section id="join" class="join-section">
-      <div class="container join-layout">
-        <div class="join-info">
-          <h2>Claim Your Spot In The Village Square</h2>
-          <p>Whether you completed Enterprise Python, Fullstack Web Development, AI & Machine Learning, UI/UX Design, Cybersecurity, CAD/CAM, or Creative Arts — enter your details so your cohort mates can connect with you.</p>
+    <!-- Join Section CTA Banner -->
+    <section id="join" class="join-section" style="background: linear-gradient(135deg, rgba(242,183,5,0.08), rgba(31,174,122,0.05)); padding: 3.5rem 1rem; border-top: 1px solid var(--hairline-border); border-bottom: 1px solid var(--hairline-border); text-align: center;">
+      <div class="container" style="max-width: 820px; margin: 0 auto;">
+        <span class="tag" style="margin-bottom: 0.75rem; display: inline-block;">Abia TechRise 3.0 Alumni</span>
+        <h2 style="font-size: 2rem; color: var(--text-main); margin-bottom: 1rem;">Claim Your Spot In The Village Square</h2>
+        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.6; margin-bottom: 2rem;">Whether you completed Enterprise Python, Fullstack Web Development, AI & Machine Learning, UI/UX Design, Cybersecurity, CAD/CAM, or Creative Arts — register your profile so your cohort mates and hiring leads can connect with you.</p>
 
-          <div class="stats-list">
-            <div class="stat-item"><div class="stat-bullet">✓</div><span>Instant inclusion in the live public directory</span></div>
-            <div class="stat-item"><div class="stat-bullet">✓</div><span>Direct links to your LinkedIn, Facebook & Portfolio showcase</span></div>
-            <div class="stat-item"><div class="stat-bullet">✓</div><span>Accessible to fellow alumni and hiring leads</span></div>
-          </div>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.25rem; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; color: #EAEDF5; font-size: 0.88rem;"><span style="color: #1FAE7A; font-weight: bold;">✓</span> Instant inclusion in public directory</div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; color: #EAEDF5; font-size: 0.88rem;"><span style="color: #1FAE7A; font-weight: bold;">✓</span> Direct links to LinkedIn, Facebook & Portfolio</div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; color: #EAEDF5; font-size: 0.88rem;"><span style="color: #1FAE7A; font-weight: bold;">✓</span> Accessible to fellow alumni & recruiters</div>
         </div>
 
-        <div class="form-card">
-          <h3 class="form-title">Join The Village</h3>
-          <p class="form-subtitle">Fill out your details to publish your resident profile if you are not already listed</p>
-
-          <form id="member-form">
-            <div class="form-group">
-              <label class="form-label" for="fullName">Full Name <span class="req">*</span></label>
-              <input type="text" id="fullName" class="form-input" placeholder="e.g. Engr Josiah Collins Chinaza" required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="profession">Profession / Skill Track <span class="req">*</span></label>
-              <select id="profession" class="form-select" required>
-                <option value="" disabled selected>Select your track / specialty</option>
-                <option value="AI & Machine Learning">AI & Machine Learning</option>
-                <option value="Computer Aided Design and Manufacturing">Computer Aided Design and Manufacturing (CAD/CAM)</option>
-                <option value="Creative Arts: 2D & 3D Animation">Creative Arts: 2D & 3D Animation</option>
-                <option value="Cybersecurity">Cybersecurity</option>
-                <option value="Enterprise Python: Backend Development">Enterprise Python: Backend Development</option>
-                <option value="Fullstack Web Development with JavaScript">Fullstack Web Development with JavaScript</option>
-                <option value="UI/UX Design">UI/UX Design</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="lga">LGA (Local Government Area) <span class="req">*</span></label>
-              <select id="lga" class="form-select" required>
-                <option value="" disabled selected>Select your LGA</option>
-                <option value="Aba North">Aba North</option>
-                <option value="Aba South">Aba South</option>
-                <option value="Arochukwu">Arochukwu</option>
-                <option value="Bende">Bende</option>
-                <option value="Ikwuano">Ikwuano</option>
-                <option value="Isiala Ngwa North">Isiala Ngwa North</option>
-                <option value="Isiala Ngwa South">Isiala Ngwa South</option>
-                <option value="Isuikwuato">Isuikwuato</option>
-                <option value="Obi Ngwa">Obi Ngwa</option>
-                <option value="Ohafia">Ohafia</option>
-                <option value="Osisioma Ngwa">Osisioma Ngwa</option>
-                <option value="Ugwunagbo">Ugwunagbo</option>
-                <option value="Ukwa East">Ukwa East</option>
-                <option value="Ukwa West">Ukwa West</option>
-                <option value="Umuahia North">Umuahia North</option>
-                <option value="Umuahia South">Umuahia South</option>
-                <option value="Umunneochi">Umunneochi</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="phone">Phone Number</label>
-              <input type="tel" id="phone" class="form-input" placeholder="e.g. +234 803 123 4567">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="photo-file">Profile Picture 📍¸</label>
-              <input type="file" id="photo-file" class="form-input" accept="image/*">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="linkedin">LinkedIn Profile URL</label>
-              <input type="text" id="linkedin" class="form-input" placeholder="linkedin.com/in/username">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="facebook">Facebook Profile URL</label>
-              <input type="text" id="facebook" class="form-input" placeholder="facebook.com/username">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="portfolio">Portfolio / Website URL</label>
-              <input type="text" id="portfolio" class="form-input" placeholder="github.com/username">
-            </div>
-
-            <div class="form-group" style="background: rgba(242, 183, 5, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(242, 183, 5, 0.2);">
-              <label class="form-label" for="securityPin" style="color: #F2B705;">Create 4-Digit Security PIN <span class="req">*</span></label>
-              <input type="password" id="securityPin" class="form-input" maxlength="4" pattern="[0-9]{4}" placeholder="4-Digit PIN (e.g. 1234)" required>
-            </div>
-
-            <button type="submit" id="submit-btn" class="btn btn-gold" style="width: 100%;">
-              Join The Village
-            </button>
-
-            <div id="form-status" class="status-msg"></div>
-          </form>
-        </div>
+        <button onclick="openJoinModal()" class="btn btn-gold" style="padding: 0.9rem 2.5rem; font-size: 1.05rem; font-weight: 700; border-radius: 50px; box-shadow: 0 10px 30px rgba(242,183,5,0.3); border: none; cursor: pointer;">
+          ➕ Join The Village / Register Profile
+        </button>
       </div>
     </section>
 
@@ -1538,6 +1543,7 @@
             console.log(`Loaded ${membersList.length} members directly from Firestore cloud database.`);
             renderDirectory();
             populateVillageHutAuthors();
+            loadVillageHutPosts();
             return;
           } else {
             console.log("Firestore members collection empty. Initializing migration from members.json...");
@@ -1581,6 +1587,7 @@
 
       renderDirectory();
       populateVillageHutAuthors();
+      loadVillageHutPosts();
     }
 
     // Populate Village Hut author dropdown after members are loaded
@@ -1803,18 +1810,96 @@
       }
     });
 
+    // Join Modal Functions
+    function openJoinModal() {
+      document.getElementById('join-modal').style.display = 'flex';
+      const statusEl = document.getElementById('form-status');
+      if (statusEl) statusEl.style.display = 'none';
+    }
+    window.openJoinModal = openJoinModal;
+
+    function closeJoinModal() {
+      document.getElementById('join-modal').style.display = 'none';
+    }
+    window.closeJoinModal = closeJoinModal;
+
+    // Searchable Combobox Helpers (Mobile-Friendly Resident Selection)
+    function filterInboxCombobox(query) {
+      const listEl = document.getElementById('inbox-combobox-list');
+      if (!listEl) return;
+      const q = (query || '').toLowerCase().trim();
+      const sorted = membersList.slice().sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      const matches = sorted.filter(m => (m.fullName || '').toLowerCase().includes(q) || (m.profession || '').toLowerCase().includes(q));
+
+      if (matches.length === 0) {
+        listEl.innerHTML = '<div style="padding:0.75rem; color:#8B93A7; font-size:0.85rem; text-align:center;">No matching resident found</div>';
+      } else {
+        listEl.innerHTML = matches.map(m => `
+          <div onclick="selectInboxResident('${m.id}', '${(m.fullName || '').replace(/'/g, "\\'")}')" style="padding: 0.65rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #EAEDF5; font-size: 0.88rem;" onmouseover="this.style.background='rgba(31,174,122,0.15)'" onmouseout="this.style.background='transparent'">
+            <strong style="color:#1FAE7A;">${m.fullName}</strong> <span style="font-size:0.75rem; color:#8B93A7;">(${m.profession || ''})</span>
+          </div>
+        `).join('');
+      }
+      listEl.style.display = 'block';
+    }
+    window.filterInboxCombobox = filterInboxCombobox;
+
+    function selectInboxResident(id, name) {
+      document.getElementById('inbox-member-select').value = id;
+      document.getElementById('inbox-search-input').value = name;
+      document.getElementById('inbox-combobox-list').style.display = 'none';
+    }
+    window.selectInboxResident = selectInboxResident;
+
+    function filterHutCombobox(query) {
+      const listEl = document.getElementById('hut-combobox-list');
+      if (!listEl) return;
+      const q = (query || '').toLowerCase().trim();
+      const sorted = membersList.slice().sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      const matches = sorted.filter(m => (m.fullName || '').toLowerCase().includes(q) || (m.profession || '').toLowerCase().includes(q));
+
+      if (matches.length === 0) {
+        listEl.innerHTML = '<div style="padding:0.75rem; color:#8B93A7; font-size:0.85rem; text-align:center;">No matching resident found</div>';
+      } else {
+        listEl.innerHTML = matches.map(m => `
+          <div onclick="selectHutAuthor('${m.id}', '${(m.fullName || '').replace(/'/g, "\\'")}')" style="padding: 0.65rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; color: #EAEDF5; font-size: 0.88rem;" onmouseover="this.style.background='rgba(242,183,5,0.15)'" onmouseout="this.style.background='transparent'">
+            <strong style="color:#F2B705;">${m.fullName}</strong> <span style="font-size:0.75rem; color:#8B93A7;">(${m.profession || ''})</span>
+          </div>
+        `).join('');
+      }
+      listEl.style.display = 'block';
+    }
+    window.filterHutCombobox = filterHutCombobox;
+
+    function selectHutAuthor(id, name) {
+      document.getElementById('hut-author-select').value = id;
+      document.getElementById('hut-search-input').value = name;
+      document.getElementById('hut-combobox-list').style.display = 'none';
+    }
+    window.selectHutAuthor = selectHutAuthor;
+
+    // Hide combobox dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#inbox-search-input') && !e.target.closest('#inbox-combobox-list')) {
+        const list = document.getElementById('inbox-combobox-list');
+        if (list) list.style.display = 'none';
+      }
+      if (!e.target.closest('#hut-search-input') && !e.target.closest('#hut-combobox-list')) {
+        const list = document.getElementById('hut-combobox-list');
+        if (list) list.style.display = 'none';
+      }
+    });
+
     // Inbox Modal
     function openInboxModal() {
       document.getElementById('inbox-modal').style.display = 'flex';
       document.getElementById('inbox-login-panel').style.display = 'block';
       document.getElementById('inbox-content-panel').style.display = 'none';
       document.getElementById('inbox-error').style.display = 'none';
-
-      // Populate resident dropdown
-      const selectEl = document.getElementById('inbox-member-select');
-      const sorted = membersList.slice().sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
-      selectEl.innerHTML = '<option value="">-- Select Your Resident Profile --</option>' +
-        sorted.map(m => `<option value="${m.id}">${m.fullName} (${m.profession})</option>`).join('');
+      const searchInp = document.getElementById('inbox-search-input');
+      if (searchInp) searchInp.value = '';
+      const hiddenSel = document.getElementById('inbox-member-select');
+      if (hiddenSel) hiddenSel.value = '';
     }
     window.openInboxModal = openInboxModal;
 
@@ -1909,7 +1994,7 @@
     window.unlockInbox = unlockInbox;
 
     // Secret Admin Routing
-    const ADMIN_SECRET = "3030";
+    const ADMIN_SECRET = "tr3_super_admin_2026_x89a";
     let isAdminAuthenticated = false;
 
     function checkAdminUrlRoute() {
@@ -2536,7 +2621,7 @@
                     <span class="verified-badge">✓ Verified</span>
                   </div>
                   <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">
-                    ${post.authorTrack ? post.authorTrack + ' � ' : ''}📍 ${post.authorLga || 'Abia'}
+                    ${post.authorTrack ? post.authorTrack + ' • ' : ''}📍  ${post.authorLga || 'Abia'}
                   </div>
                 </div>
               </div>
@@ -2550,7 +2635,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline-border); padding-top: 0.65rem; font-size: 0.78rem; color: var(--text-muted);">
               <span>🕒 ${dateStr}</span>
               <button onclick="likeVillagePost('${post.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid var(--hairline-border); color: var(--accent-gold); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 0.3rem;">
-                â¤ï¸ <span id="like-count-${post.id}">${likes}</span> Likes
+                ❤️ <span id="like-count-${post.id}">${likes}</span> Likes
               </button>
             </div>
           </div>
@@ -2571,13 +2656,13 @@
 
       if (!authorId) {
         statusEl.style.color = '#EF4444';
-        statusEl.textContent = 'âŒ Please select your resident profile.';
+        statusEl.textContent = '❌ Please select your resident profile.';
         statusEl.style.display = 'block';
         return;
       }
       if (!text) {
         statusEl.style.color = '#EF4444';
-        statusEl.textContent = 'âŒ Please enter discussion text.';
+        statusEl.textContent = '❌ Please enter discussion text.';
         statusEl.style.display = 'block';
         return;
       }
@@ -2585,7 +2670,7 @@
       const member = membersList.find(m => m.id === authorId);
       if (!member) {
         statusEl.style.color = '#EF4444';
-        statusEl.textContent = 'âŒ Resident profile not found.';
+        statusEl.textContent = '❌ Resident profile not found.';
         statusEl.style.display = 'block';
         return;
       }
@@ -2777,6 +2862,7 @@
             statusMsg.textContent = "🎉 Congratulations! Your profile has been published to the Village Square.";
             statusMsg.style.display = "block";
             memberForm.reset();
+            setTimeout(() => { closeJoinModal(); }, 1800);
 
             const cardEl = document.getElementById(`card-${newId}`);
             if (cardEl) cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
