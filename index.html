@@ -16,6 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
   <style>
     :root {
@@ -808,7 +809,7 @@
       </nav>
 
       <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <button id="user-inbox-btn" onclick="openInboxModal()" style="background: rgba(31,174,122,0.1); border: 1px solid rgba(31,174,122,0.3); color: #1FAE7A; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">✉️ My Inbox</button>
+        <button id="user-inbox-btn" onclick="openInboxModal()" style="background: rgba(31,174,122,0.1); border: 1px solid rgba(31,174,122,0.3); color: #1FAE7A; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">✉️  My Inbox</button>
         <!-- Secret Admin Button (Hidden by default, unlocked via /admin or Ctrl+Shift+A) -->
         <button id="admin-login-btn" onclick="openAdminModal()" style="display: none; background: transparent; border: 1px solid rgba(242,183,5,0.3); color: #F2B705; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">👑 Master Admin</button>
         <a href="#join" class="btn btn-gold" id="desktop-join-btn">Join Villa</a>
@@ -820,12 +821,12 @@
 
     <!-- Mobile Slide-out Navigation Drawer -->
     <div id="mobile-nav-drawer" style="display: none; background: rgba(10, 15, 30, 0.96); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(242, 183, 5, 0.3); padding: 1.25rem; flex-direction: column; gap: 0.85rem; text-align: center;">
-      <a href="#mission" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">ðŸŽ¯ Mission</a>
+      <a href="#mission" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🎯 Mission</a>
       <a href="#village-hut" onclick="toggleMobileMenu()" style="color: #F2B705; font-size: 1rem; text-decoration: none; font-weight: 700;">🛖 Village Hut (Town Hall)</a>
-      <a href="#join" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">📍 Join Village</a>
-      <a href="#directory" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🏙️™ï¸ Village Square (Directory)</a>
+      <a href="#join" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">📍 Join Village</a>
+      <a href="#directory" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🏙️ Village Square (Directory)</a>
       <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
-        <button onclick="toggleMobileMenu(); openInboxModal();" style="flex:1; background: rgba(31,174,122,0.15); border: 1px solid #1FAE7A; color: #1FAE7A; padding: 8px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">✉️ My Inbox</button>
+        <button onclick="toggleMobileMenu(); openInboxModal();" style="flex:1; background: rgba(31,174,122,0.15); border: 1px solid #1FAE7A; color: #1FAE7A; padding: 8px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">✉️  My Inbox</button>
         <a href="#join" onclick="toggleMobileMenu()" class="btn btn-gold" style="flex:1; padding: 8px; font-size: 0.85rem;">Join Villa</a>
       </div>
     </div>
@@ -1444,10 +1445,12 @@
 
     let db = null;
     let auth = null;
+    let storage = null;
     if (typeof firebase !== 'undefined') {
       firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
       auth = firebase.auth();
+      try { storage = firebase.storage(); } catch(e) {}
       try { firebase.analytics(); } catch(e) {}
     }
 
@@ -2600,6 +2603,93 @@
           renderDirectory();
         }
       });
+
+      // Registration Form Submission
+      const memberForm = document.getElementById("member-form");
+      if (memberForm) {
+        memberForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById("submit-btn");
+          const statusMsg = document.getElementById("form-status");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Publishing Profile...";
+          statusMsg.className = "status-msg";
+          statusMsg.style.display = "none";
+
+          try {
+            const fullName = document.getElementById("fullName").value.trim();
+            const profession = document.getElementById("profession").value;
+            const lga = document.getElementById("lga").value;
+            const phone = document.getElementById("phone").value.trim();
+            const linkedin = document.getElementById("linkedin").value.trim();
+            const facebook = document.getElementById("facebook").value.trim();
+            const portfolio = document.getElementById("portfolio").value.trim();
+            const securityPin = document.getElementById("securityPin").value.trim();
+            const fileInput = document.getElementById("photo-file");
+
+            const newId = "m-" + (membersList.length + 1000);
+            let photoUrl = "";
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+              const file = fileInput.files[0];
+              if (storage) {
+                try {
+                  const storageRef = storage.ref(`avatars/${newId}_${Date.now()}`);
+                  const uploadTask = await storageRef.put(file);
+                  photoUrl = await uploadTask.ref.getDownloadURL();
+                } catch(err) {
+                  console.warn("Firebase Storage upload error, converting to local preview:", err);
+                }
+              }
+              if (!photoUrl) {
+                photoUrl = await new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onload = (ev) => resolve(ev.target.result);
+                  reader.readAsDataURL(file);
+                });
+              }
+            }
+
+            const newMember = {
+              id: newId,
+              fullName,
+              profession,
+              lga,
+              phone,
+              photo: photoUrl,
+              securityPin,
+              verified: true,
+              social: {
+                photo: photoUrl,
+                linkedin,
+                facebook,
+                website: portfolio
+              }
+            };
+
+            membersList.unshift(newMember);
+            persistMemberLocally(newMember);
+            renderDirectory();
+            populateVillageHutAuthors();
+
+            statusMsg.className = "status-msg success";
+            statusMsg.textContent = "🎉 Congratulations! Your profile has been published to the Village Square.";
+            statusMsg.style.display = "block";
+            memberForm.reset();
+
+            const cardEl = document.getElementById(`card-${newId}`);
+            if (cardEl) cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          } catch(err) {
+            console.error("Registration error:", err);
+            statusMsg.className = "status-msg error";
+            statusMsg.textContent = "❌ Unable to publish profile. Please try again.";
+            statusMsg.style.display = "block";
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Join The Village";
+          }
+        });
+      }
     });
   </script>
   <!-- Floating Side Scroll Navigation Widget -->
