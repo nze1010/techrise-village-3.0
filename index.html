@@ -769,7 +769,15 @@
       .footer-credit { font-size: 0.75rem; }
       .footer-copy { font-size: 0.72rem; }
       .site-footer { padding: 2rem 0; }
-    }"
+    }
+
+    /* Village Hut Composer — stack PIN + Post button on mobile */
+    @media (max-width: 480px) {
+      #hut-post-form > div[style*="grid-template-columns: 1fr 140px"],
+      div[style*="grid-template-columns: 1fr 140px"] {
+        grid-template-columns: 1fr !important;
+      }
+    }
 
     /* ======================================================
        RESPONSIVE — SMALL PHONES (≤380px) — iPhone SE, older Androids
@@ -779,7 +787,7 @@
       .hero-subtitle { font-size: 0.82rem; }
       .brand-logo img { height: 32px !important; }
       .brand-title span:first-child { font-size: 0.7rem !important; }
-      .modal-box { padding: 0.85rem !important; }
+      .modal-box { padding: 0.85rem !important; max-height: 85vh; overflow-y: auto; }
       .pin-key { font-size: 1rem; padding: 0.6rem; }
       .resident-name { font-size: 0.88rem; }
       .avatar-node { width: 38px; height: 38px; font-size: 0.85rem; }
@@ -859,15 +867,15 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; text-align: center;">
           <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(242,183,5,0.2);">
             <div style="font-size: 1.3rem; font-weight: 700; color: #F2B705;" id="stat-visits">0</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">ðŸ‘ï¸ Page Visits</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">👁️  Page Visits</div>
           </div>
           <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.2);">
             <div style="font-size: 1.3rem; font-weight: 700; color: #1FAE7A;" id="stat-alumni">827</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">ðŸ‘¥ Total Alumni</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">👥 Total Alumni</div>
           </div>
           <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(56,189,248,0.2);">
             <div style="font-size: 1.3rem; font-weight: 700; color: #38BDF8;" id="stat-edited">0</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">âœï¸ Profiles Edited</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">✏️  Profiles Edited</div>
           </div>
         </div>
 
@@ -878,16 +886,16 @@
         </div>
 
         <div style="margin-bottom: 1.25rem;">
-          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📍¥ Export Directory</label>
+          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📍 Export Directory</label>
           <div style="display: flex; gap: 0.5rem;">
-            <button onclick="exportDirectory('json')" style="flex: 1; padding: 0.6rem; background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️ Export JSON</button>
-            <button onclick="exportDirectory('csv')" style="flex: 1; padding: 0.6rem; background: rgba(56,189,248,0.1); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️ Export CSV</button>
+            <button onclick="exportDirectory('json')" style="flex: 1; padding: 0.6rem; background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️  Export JSON</button>
+            <button onclick="exportDirectory('csv')" style="flex: 1; padding: 0.6rem; background: rgba(56,189,248,0.1); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️  Export CSV</button>
           </div>
         </div>
 
         <!-- Admin Delete Member -->
         <div style="margin-bottom: 1.25rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 0.85rem;">
-          <label style="color: #FCA5A5; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">🗑️ Delete a Member Profile</label>
+          <label style="color: #FCA5A5; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">🗑️ Delete a Member Profile</label>
           <div style="display: flex; gap: 0.5rem;">
             <input id="admin-delete-id" placeholder="Member ID (e.g. m-5)" style="flex:1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.85rem;">
             <button onclick="adminDeleteMember()" style="padding: 0.6rem 1rem; background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Delete</button>
@@ -895,29 +903,70 @@
           <p id="admin-delete-msg" style="font-size:0.78rem; margin-top:0.4rem; display:none;"></p>
         </div>
 
+        <!-- Admin Reset Student PIN / Verification -->
+        <div style="margin-bottom: 1.25rem; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 0.85rem;">
+          <label style="color: #93C5FD; font-size: 0.85rem; display: block; margin-bottom: 0.35rem;">🔄 Reset Student Verification &amp; PIN</label>
+          <p style="color: #8B93A7; font-size: 0.75rem; margin-bottom: 0.6rem;">Use this if a student is locked out. This clears their PIN and verification so they can re-verify with their ID card.</p>
+          <div style="display: flex; gap: 0.5rem;">
+            <input id="admin-reset-pin-id" placeholder="Member ID (e.g. m-5)" style="flex:1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.85rem;">
+            <button onclick="adminResetStudentPin()" style="padding: 0.6rem 1rem; background: rgba(56,189,248,0.15); color: #93C5FD; border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Reset</button>
+          </div>
+          <p id="admin-reset-pin-msg" style="font-size:0.78rem; margin-top:0.4rem; display:none;"></p>
+        </div>
+
         <button onclick="adminLogout()" style="width: 100%; padding: 0.6rem; background: transparent; color: #8B93A7; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔒 Logout Admin</button>
       </div>
     </div>
   </div>
 
-  <!-- ========== VERIFY IDENTITY MODAL (STUDENT ID CARD ONLY) ========== -->
+  <!-- ========== VERIFY IDENTITY MODAL — 2-FACTOR: ID CARD + LGA ========== -->
   <div id="verify-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 460px;">
+    <div class="modal-box" style="max-width: 480px;">
       <button onclick="closeVerifyModal()" class="modal-close">✕</button>
       <div style="text-align:center; margin-bottom:1.25rem;">
         <div style="font-size:2.2rem; margin-bottom:0.3rem;">🪪</div>
-        <h3 style="color:#F2B705; margin-bottom:0.3rem;">Verify Student ID Card</h3>
+        <h3 style="color:#F2B705; margin-bottom:0.3rem;">2-Factor Identity Verification</h3>
         <p style="color:#8B93A7; font-size:0.85rem;">Claiming profile for <strong id="verify-member-name" style="color:#EAEDF5;">Resident</strong></p>
       </div>
 
-      <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1rem; line-height:1.5;">Enter your TechRise Student ID card number to claim and secure your profile.</p>
-      
+      <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1.25rem; line-height:1.5;">To confirm your identity, enter your TechRise Student ID card number and select the Local Government Area where you are from.</p>
+
+      <!-- Factor 1: Student ID Card -->
       <div class="edit-field">
-        <label>Your Student ID Card Number</label>
+        <label style="display:flex; align-items:center; gap:0.4rem;">🪪 <span>Factor 1 — Your Student ID Card Number</span></label>
         <input type="text" id="id-card-input" placeholder="e.g. tr3/std/jsc/037" autocomplete="off" style="text-transform:lowercase; font-size:1rem; letter-spacing:0.04em;">
       </div>
+
+      <!-- Factor 2: LGA Selection -->
+      <div class="edit-field">
+        <label style="display:flex; align-items:center; gap:0.4rem;">📍 <span>Factor 2 — Your Local Government Area (LGA)</span></label>
+        <select id="verify-lga-select" style="width:100%; padding:0.75rem 1rem; background:rgba(255,255,255,0.05); border:1px solid rgba(234,237,245,0.12); border-radius:8px; color:#EAEDF5; font-size:0.9rem;">
+          <option value="">-- Select Your LGA --</option>
+          <option>Aba North</option>
+          <option>Aba South</option>
+          <option>Arochukwu</option>
+          <option>Bende</option>
+          <option>Ikwuano</option>
+          <option>Isiala Ngwa North</option>
+          <option>Isiala Ngwa South</option>
+          <option>Isuikwuato</option>
+          <option>Obi Ngwa</option>
+          <option>Ohafia</option>
+          <option>Osisioma</option>
+          <option>Ugwunagbo</option>
+          <option>Ukwa East</option>
+          <option>Ukwa West</option>
+          <option>Umuahia North</option>
+          <option>Umuahia South</option>
+          <option>Umu Nneochi</option>
+        </select>
+      </div>
+
       <p id="id-verify-error" style="color:#EF4444; font-size:0.8rem; display:none; margin-bottom:0.75rem;"></p>
-      <button onclick="verifyByIdCard()" style="width:100%; padding:0.78rem; background:#F2B705; color:#0A0F1E; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.95rem;">Verify ID Card & Create PIN ✓</button>
+
+      <button onclick="verifyByIdCard()" style="width:100%; padding:0.78rem; background:#F2B705; color:#0A0F1E; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.95rem;">✅ Verify &amp; Create My PIN</button>
+
+      <p style="color:#8B93A7; font-size:0.73rem; margin-top:0.85rem; text-align:center; line-height:1.5;">🔒 Both your ID Track and LGA must match your registered profile. This is a one-time verification.</p>
     </div>
   </div>
 
@@ -925,7 +974,7 @@
   <div id="pin-modal" class="modal-overlay">
     <div class="modal-box" style="max-width:400px; text-align:center;">
       <button onclick="closePinModal()" class="modal-close">✕</button>
-      <div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🔍 </div>
       <h3 style="color:#F2B705; margin-bottom:0.3rem;" id="pin-modal-title">Create Your 4-Digit PIN</h3>
       <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1.25rem;" id="pin-modal-subtitle">This PIN will be your personal key to edit your profile.</p>
 
@@ -959,21 +1008,21 @@
   <div id="edit-modal" class="modal-overlay">
     <div class="modal-box" style="max-width:520px;">
       <button onclick="closeEditModal()" class="modal-close">✕</button>
-      <h3 style="color:#F2B705; margin-bottom:0.25rem;">âœï¸ Edit My Profile</h3>
+      <h3 style="color:#F2B705; margin-bottom:0.25rem;">✏️ Edit My Profile</h3>
       <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1.25rem;">Update your contact details, profile picture, and social links. Changes are saved instantly.</p>
 
       <input type="hidden" id="edit-member-id">
 
       <div class="edit-field">
-        <label>🖼️ Profile Photo URL</label>
+        <label>🖼️  Profile Photo URL</label>
         <input type="url" id="edit-photo-url" placeholder="https://example.com/myphoto.jpg">
       </div>
       <div class="edit-field">
-        <label>📍¸ Or Upload Photo File</label>
+        <label>📤 Or Upload Photo File</label>
         <input type="file" id="edit-photo-file" accept="image/*">
       </div>
       <div class="edit-field">
-        <label>📍ž Phone Number</label>
+        <label>📞 Phone Number</label>
         <input type="tel" id="edit-phone" placeholder="e.g. +2348031234567">
       </div>
       <div class="edit-field">
@@ -981,27 +1030,27 @@
         <input type="url" id="edit-linkedin" placeholder="linkedin.com/in/username">
       </div>
       <div class="edit-field">
-        <label>📍˜ Facebook URL</label>
+        <label>📘 Facebook URL</label>
         <input type="url" id="edit-facebook" placeholder="facebook.com/username">
       </div>
       <div class="edit-field">
-        <label>ðŸ¦ Twitter / X URL</label>
+        <label>𝕏 Twitter / X URL</label>
         <input type="url" id="edit-twitter" placeholder="twitter.com/username">
       </div>
       <div class="edit-field">
-        <label>📍¸ Instagram URL</label>
+        <label>📸 Instagram URL</label>
         <input type="url" id="edit-instagram" placeholder="instagram.com/username">
       </div>
       <div class="edit-field">
-        <label>ðŸ™ GitHub URL</label>
+        <label>🐙 GitHub URL</label>
         <input type="url" id="edit-github" placeholder="github.com/username">
       </div>
       <div class="edit-field">
-        <label>🌐 Portfolio / Website</label>
+        <label>🌐  Portfolio / Website</label>
         <input type="url" id="edit-website" placeholder="https://yoursite.com">
       </div>
       <div class="edit-field">
-        <label>📍 Short Bio (max 200 chars)</label>
+        <label>📍  Short Bio (max 200 chars)</label>
         <textarea id="edit-bio" placeholder="Tell your cohort who you are..." maxlength="200"></textarea>
       </div>
 
@@ -1017,7 +1066,7 @@
   <div id="send-msg-modal" class="modal-overlay">
     <div class="modal-box">
       <button onclick="closeSendMessageModal()" class="modal-close">✕</button>
-      <h3 style="color: #F2B705; margin-bottom: 0.5rem;">✉️ Send Private Message</h3>
+      <h3 style="color: #F2B705; margin-bottom: 0.5rem;">✉️  Send Private Message</h3>
       <p style="color: #8B93A7; font-size: 0.85rem; margin-bottom: 1rem;">To: <span id="recipient-name-display" style="color: #EAEDF5; font-weight: 700;">Resident</span></p>
 
       <form id="private-msg-form">
@@ -1040,7 +1089,7 @@
           <label style="color: #CBD5E1; font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Message Text <span style="color:#F2B705">*</span></label>
           <textarea id="sender-text" class="form-input" rows="3" placeholder="Type your message..." required></textarea>
         </div>
-        <button type="submit" id="send-msg-btn" style="width: 100%; padding: 0.75rem; background: #1FAE7A; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">✉️ Send Message</button>
+        <button type="submit" id="send-msg-btn" style="width: 100%; padding: 0.75rem; background: #1FAE7A; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">✉️  Send Message</button>
       </form>
     </div>
   </div>
@@ -1086,10 +1135,10 @@
     <section class="hero-section">
       <canvas id="hero-canvas"></canvas>
       <div class="container hero-content">
-        <div class="eyebrow-badge">COHORT 3 � REMEMBRANCE VILLA</div>
+        <div class="eyebrow-badge">COHORT 3 — REMEMBRANCE VILLA</div>
         
         <div class="credit-line-top">
-          DEVELOPED BY <span class="highlight">ENGR JOSIAH COLLINS CHINAZA</span> � PYTHON TRACK
+          DEVELOPED BY <span class="highlight">ENGR JOSIAH COLLINS CHINAZA</span> — PYTHON TRACK
         </div>
 
         <h1 class="hero-title">
@@ -1170,7 +1219,7 @@
           <div style="background: var(--panel-bg); border: 1px solid var(--hairline-border); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
               <h3 style="font-size: 1.1rem; color: var(--accent-gold); display: flex; align-items: center; gap: 0.5rem;">
-                âœï¸ Start a Discussion
+                ✏️  Start a Discussion
               </h3>
               <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
                 🔒 Only Verified Villagers (with PIN) can post
@@ -1192,7 +1241,7 @@
                     <option value="💡 Tech & Coding">💡 Tech & Coding</option>
                     <option value="💼 Job Opportunity">💼 Job Opportunity</option>
                     <option value="🎉 Announcement">🎉 Announcement</option>
-                    <option value="🤝 Collaboration">🤝 Collaboration</option>
+                    <option value="🤝  Collaboration">🤝  Collaboration</option>
                   </select>
                 </div>
               </div>
@@ -1201,7 +1250,7 @@
                 <textarea id="hut-post-text" class="form-input" rows="3" placeholder="What's on your mind? Share news, project updates, or ask questions to the village..." required style="resize: vertical; min-height: 80px;"></textarea>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 140px; gap: 0.75rem; align-items: center;">
+              <div id="hut-post-form" style="display: grid; grid-template-columns: 1fr 140px; gap: 0.75rem; align-items: center;">
                 <div>
                   <input type="password" id="hut-pin-input" class="form-input" placeholder="Enter your 4-Digit Security PIN to post *" maxlength="4" required style="font-size: 0.9rem;">
                 </div>
@@ -1407,10 +1456,10 @@
   <footer class="site-footer">
     <div class="container footer-flex">
       <div class="footer-credit">
-        DEVELOPED BY <strong>ENGR JOSIAH COLLINS CHINAZA</strong> � PYTHON TRACK
+        DEVELOPED BY <strong>ENGR JOSIAH COLLINS CHINAZA</strong> — PYTHON TRACK
       </div>
       <p class="footer-copy">
-        Abia TechRise 3.0 Remembrance Villa &copy; 2026 � YOU WILL LIKE IT
+        Abia TechRise 3.0 Remembrance Villa &copy; 2026 — YOU WILL LIKE IT
       </p>
     </div>
   </footer>
@@ -1619,11 +1668,11 @@
         // Build social icons
         const socialIconsHtml = [
           social.linkedin ? `<a href="${social.linkedin}" target="_blank" class="social-icon-link" title="LinkedIn">in</a>` : '',
-          social.facebook ? `<a href="${social.facebook}" target="_blank" class="social-icon-link" title="Facebook">📍˜</a>` : '',
-          social.github ? `<a href="${social.github}" target="_blank" class="social-icon-link" title="GitHub">ðŸ™</a>` : '',
-          social.twitter ? `<a href="${social.twitter}" target="_blank" class="social-icon-link" title="Twitter/X">ð•</a>` : '',
-          social.instagram ? `<a href="${social.instagram}" target="_blank" class="social-icon-link" title="Instagram">📍¸</a>` : '',
-          social.website ? `<a href="${social.website}" target="_blank" class="social-icon-link" title="Website">🌐</a>` : ''
+          social.facebook ? `<a href="${social.facebook}" target="_blank" class="social-icon-link" title="Facebook">f</a>` : '',
+          social.github ? `<a href="${social.github}" target="_blank" class="social-icon-link" title="GitHub">🐙</a>` : '',
+          social.twitter ? `<a href="${social.twitter}" target="_blank" class="social-icon-link" title="Twitter/X">𝕏</a>` : '',
+          social.instagram ? `<a href="${social.instagram}" target="_blank" class="social-icon-link" title="Instagram">📸</a>` : '',
+          social.website ? `<a href="${social.website}" target="_blank" class="social-icon-link" title="Website">🌐</a>` : ''
         ].filter(Boolean).join('');
 
         return `
@@ -1637,7 +1686,7 @@
                 </div>
                 <div class="pills-wrapper">
                   <span class="profession-pill">${safeProf}</span>
-                  <span class="lga-pill">📍 ${safeLga}</span>
+                  <span class="lga-pill">📍  ${safeLga}</span>
                 </div>
               </div>
             </div>
@@ -1651,12 +1700,12 @@
                   💬 Chat on WhatsApp (${member.phone})
                 </a>
                 <a href="tel:${member.phone}" class="card-link" title="Call Resident">
-                  📍ž Call Direct
+                  📞 Call Direct
                 </a>
               ` : ''}
 
               <button onclick="openSendMessageModal('${member.id}', '${safeName.replace(/'/g, "\\'")}')" style="background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; margin-top: 4px;">
-                ✉️ Send Private Message
+                ✉️  Send Private Message
               </button>
 
               <button class="my-account-btn" onclick="openMyAccount('${member.id}', '${safeName.replace(/'/g, "\\'")}')">👤 My Account</button>
@@ -1685,7 +1734,7 @@
         
         const badge = document.createElement('div');
         badge.className = 'spotlight-badge';
-        badge.textContent = '🌐Ÿ Today\'s Spotlight Resident!';
+        badge.textContent = '🌐 Today\'s Spotlight Resident!';
         cardEl.prepend(badge);
 
         setTimeout(() => {
@@ -1741,16 +1790,16 @@
         if (db) {
           await db.collection('messages').add(msgObj);
         }
-        alert('✉️ Private message sent successfully!');
+        alert('✉️  Private message sent successfully!');
         closeSendMessageModal();
         document.getElementById('private-msg-form').reset();
       } catch (err) {
-        alert('✉️ Private message sent successfully!');
+        alert('✉️  Private message sent successfully!');
         closeSendMessageModal();
         document.getElementById('private-msg-form').reset();
       } finally {
         btn.disabled = false;
-        btn.textContent = '✉️ Send Message';
+        btn.textContent = '✉️  Send Message';
       }
     });
 
@@ -1781,26 +1830,26 @@
       errEl.style.display = 'none';
 
       if (!selectedId) {
-        errEl.textContent = 'âŒ Please select your resident profile name.';
+        errEl.textContent = '❌ Please select your resident profile name.';
         errEl.style.display = 'block';
         return;
       }
       if (!pin) {
-        errEl.textContent = 'âŒ Please enter your 4-digit PIN.';
+        errEl.textContent = '❌ Please enter your 4-digit PIN.';
         errEl.style.display = 'block';
         return;
       }
 
       const member = membersList.find(m => m.id === selectedId);
       if (!member) {
-        errEl.textContent = 'âŒ Resident profile not found.';
+        errEl.textContent = '❌ Resident profile not found.';
         errEl.style.display = 'block';
         return;
       }
 
       const expectedPin = member.securityPin || '3030';
       if (pin !== expectedPin) {
-        errEl.textContent = 'âŒ Incorrect PIN for selected resident profile.';
+        errEl.textContent = '❌ Incorrect PIN for selected resident profile.';
         errEl.style.display = 'block';
         return;
       }
@@ -1849,7 +1898,7 @@
           <div style="background: rgba(255,255,255,0.04); padding: 1rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.25);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem; flex-wrap:wrap; gap:0.5rem;">
               <strong style="color: #F2B705;">👤 ${data.senderName || 'Anonymous Villager'}</strong>
-              <span style="font-size: 0.75rem; color: #8B93A7;">${data.senderTrack ? '💻 ' + data.senderTrack + ' � ' : ''}${data.senderLga ? '📍 ' + data.senderLga : ''}</span>
+              <span style="font-size: 0.75rem; color: #8B93A7;">${data.senderTrack ? '💻 ' + data.senderTrack + ' — ' : ''}${data.senderLga ? '📍  ' + data.senderLga : ''}</span>
             </div>
             <p style="font-size: 0.92rem; color: #EAEDF5; line-height:1.5; margin-bottom:0.4rem;">${data.text}</p>
             <div style="font-size: 0.72rem; color: #8B93A7; text-align:right;">${dateStr}</div>
@@ -1950,6 +1999,29 @@
     }
     window.adminDeleteMember = adminDeleteMember;
 
+    // ===== ADMIN RESET STUDENT PIN / VERIFICATION =====
+    function adminResetStudentPin() {
+      if (!isAdminAuthenticated) return;
+      const id = document.getElementById('admin-reset-pin-id').value.trim();
+      const msgEl = document.getElementById('admin-reset-pin-msg');
+      if (!id) { msgEl.style.display='block'; msgEl.style.color='#FCA5A5'; msgEl.textContent='Please enter a member ID.'; return; }
+      const member = membersList.find(m => m.id === id);
+      if (!member) { msgEl.style.display='block'; msgEl.style.color='#FCA5A5'; msgEl.textContent='Member ID not found.'; return; }
+
+      // Clear PIN and verification status
+      member.securityPin = null;
+      member.verified = false;
+
+      // Persist locally
+      persistMemberLocally(member);
+
+      msgEl.style.display='block';
+      msgEl.style.color='#6EE7B7';
+      msgEl.textContent='✅ Verification and PIN reset for ' + (member.fullName || id) + '. They can now re-verify with their ID card.';
+      document.getElementById('admin-reset-pin-id').value = '';
+    }
+    window.adminResetStudentPin = adminResetStudentPin;
+
     function adminLogout() {
       isAdminAuthenticated = false;
       closeAdminModal();
@@ -2015,7 +2087,6 @@
     /**
      * Validates a TechRise ID card against a member's track.
      * Pattern: tr3/std/<abbrev>/<number>
-     * Returns { valid: bool, message: string, detectedTrack: string|null }
      */
     function validateIdCard(idString, memberProfession) {
       const cleaned = idString.trim().toLowerCase();
@@ -2038,7 +2109,6 @@
     // ============================================================
     let currentVerifyMemberId = null;
     let currentVerifyMemberName = null;
-    let confirmationResult = null; // for phone OTP
     let pinMode = 'create'; // 'create' or 'login'
     let pinBuffer = '';
     let pinFirstEntry = '';
@@ -2049,13 +2119,10 @@
       const member = membersList.find(m => m.id === memberId);
       if (!member) return;
 
-      // If member already has a personal PIN set (not default 3030), ask for PIN to open edit
       if (member.securityPin && member.securityPin !== '3030' && member.verified) {
-        // Already verified before — ask PIN to enter edit
         openPinModal('login');
         return;
       }
-      // Otherwise open verification flow
       openVerifyModal();
     }
     window.openMyAccount = openMyAccount;
@@ -2063,6 +2130,7 @@
     function openVerifyModal() {
       document.getElementById('verify-member-name').textContent = currentVerifyMemberName;
       document.getElementById('id-card-input').value = '';
+      document.getElementById('verify-lga-select').value = '';
       document.getElementById('id-verify-error').style.display = 'none';
       document.getElementById('verify-modal').style.display = 'flex';
     }
@@ -2072,24 +2140,42 @@
     }
     window.closeVerifyModal = closeVerifyModal;
 
-    // --- Verify by ID Card ---
+    // --- 2-Factor Verify: ID Card Track + LGA ---
     function verifyByIdCard() {
       const idInput = document.getElementById('id-card-input').value.trim();
+      const lgaInput = document.getElementById('verify-lga-select').value.trim();
       const errEl = document.getElementById('id-verify-error');
       const member = membersList.find(m => m.id === currentVerifyMemberId);
       if (!member) return;
 
+      // --- Factor 1: Validate ID Card Track abbreviation ---
       const result = validateIdCard(idInput, member.profession);
       if (!result.valid) {
-        errEl.textContent = 'âŒ ' + result.message;
+        errEl.textContent = '❌ ' + result.message;
         errEl.style.display = 'block';
         return;
       }
+
+      // --- Factor 2: Validate LGA selection ---
+      if (!lgaInput) {
+        errEl.textContent = '❌ Please select your Local Government Area (Factor 2).';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const memberLga = (member.lga || '').trim().toLowerCase();
+      const inputLga = lgaInput.toLowerCase();
+      if (memberLga !== inputLga) {
+        errEl.textContent = '❌ LGA does not match your registered profile.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      // --- Both Factors Passed ---
       errEl.style.display = 'none';
-      // Mark verified in memory
       member.verified = true;
       closeVerifyModal();
-      // Now decide: create PIN if none, or open edit if PIN exists
+
       if (!member.securityPin || member.securityPin === '3030') {
         openPinModal('create');
       } else {
@@ -2228,13 +2314,28 @@
       const fileInput = document.getElementById('edit-photo-file');
 
       if (fileInput && fileInput.files && fileInput.files[0]) {
-        try {
-          photoVal = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.readAsDataURL(fileInput.files[0]);
-          });
-        } catch(e) {}
+        const file = fileInput.files[0];
+        // Try Firebase Storage first (cloud CDN URL), fallback to Base64
+        if (storage) {
+          try {
+            const storageRef = storage.ref(`avatars/${memberId}_${Date.now()}`);
+            const uploadTask = await storageRef.put(file);
+            photoVal = await uploadTask.ref.getDownloadURL();
+            console.log('✅ Profile photo uploaded to Firebase Storage:', photoVal);
+          } catch(storageErr) {
+            console.warn('Firebase Storage upload failed, using Base64 fallback:', storageErr);
+          }
+        }
+        // Fallback: read as Base64 data URL if Storage upload didn't work
+        if (!photoVal) {
+          try {
+            photoVal = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target.result);
+              reader.readAsDataURL(file);
+            });
+          } catch(e) {}
+        }
       }
 
       member.photo = photoVal;
