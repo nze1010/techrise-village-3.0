@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABIA TECHRISE 3.0 � REMEMBRANCE VILLA</title>
+  <title>ABIA TECHRISE 3.0 • REMEMBRANCE VILLA</title>
   <meta name="description" content="A digital village directory for Abia TechRise 3.0 cohort members to stay connected, showcase portfolios, and support each other post-graduation.">
   
   <!-- Google Fonts -->
@@ -17,6 +17,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <!-- Static Baseline Alumni Data -->
+  <script src="members-data.js"></script>
 
   <style>
     :root {
@@ -1579,15 +1581,15 @@
 
     // Load Data from Firestore Primary (with members.json fail-safe baseline)
     async function loadMembers() {
-      // 1. Load static base directory from members.json so directory is NEVER empty
+      // 1. Instant base directory from embedded MEMBERS_DATA array
       let baseMembers = [];
-      try {
-        const fileRes = await fetch('./members.json');
-        if (fileRes.ok) {
-          baseMembers = await fileRes.json();
-        }
-      } catch (err) {
-        console.warn('members.json fetch error:', err);
+      if (typeof window.MEMBERS_DATA !== 'undefined' && Array.isArray(window.MEMBERS_DATA)) {
+        baseMembers = JSON.parse(JSON.stringify(window.MEMBERS_DATA));
+      } else {
+        try {
+          const fileRes = await fetch('./members.json');
+          if (fileRes.ok) baseMembers = await fileRes.json();
+        } catch (err) {}
       }
 
       // 2. Overlay localStorage cache edits if present
