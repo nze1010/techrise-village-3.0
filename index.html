@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABIA TECHRISE 3.0 � REMEMBRANCE VILLA</title>
+  <meta name="description" content="A digital village directory for Abia TechRise 3.0 cohort members to stay connected, showcase portfolios, and support each other post-graduation.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0A0F1E;
+      --panel-bg: #131B2F;
+      --panel-light: #1B2540;
+      --text-main: #EAEDF5;
+      --text-muted: #8B93A7;
+      --accent-gold: #F2B705;
+      --accent-gold-glow: rgba(242, 183, 5, 0.18);
+      --accent-emerald: #1FAE7A;
+      --accent-emerald-glow: rgba(31, 174, 122, 0.15);
+      --hairline-border: rgba(234, 237, 245, 0.09);
+      --hairline-hover: rgba(242, 183, 5, 0.35);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-dark);
+      background-image: 
+        linear-gradient(to bottom, rgba(10, 15, 30, 0.82), rgba(10, 15, 30, 0.88)),
+        url('assets/students2.png');
+      background-size: cover;
+      background-position: center center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: var(--text-main);
+      font-weight: 500;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Accessibility Focus Styles */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 3px;
+    }
+
+    /* Typography Utilities */
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      color: var(--text-main);
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .font-mono { font-family: var(--font-mono); }
+    .text-gold { color: var(--accent-gold); }
+    .text-emerald { color: var(--accent-emerald); }
+    .text-muted { color: var(--text-muted); }
+
+    /* Layout Containers */
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Sticky Navigation */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--hairline-border);
+      padding: 1rem 0;
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo-icon { width: 32px; height: 32px; }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .nav-links a:hover { color: var(--text-main); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all var(--transition-normal);
+    }
+
+    .btn-gold {
+      background-color: var(--accent-gold);
+      color: #0A0F1E;
+      box-shadow: 0 4px 20px var(--accent-gold-glow);
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(242, 183, 5, 0.35);
+      background-color: #ffc41a;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-main);
+      border-color: var(--hairline-border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      background: rgba(242, 183, 5, 0.05);
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      position: relative;
+      padding: 5rem 0 4rem 0;
+      overflow: hidden;
+      border-bottom: 1px solid var(--hairline-border);
+    }
+
+    /* Faint student crowd background */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/students2.png');
+      background-size: cover;
+      background-position: center 30%;
+      opacity: 0.42;
+      z-index: 0;
+      animation: bgFadeIn 2.5s ease forwards;
+    }
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(10,15,30,0.35) 0%,
+        rgba(10,15,30,0.60) 60%,
+        rgba(10,15,30,0.80) 100%
+      );
+      z-index: 0;
+    }
+
+    @keyframes bgFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 0.42; }
+    }
+
+    #hero-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      background: rgba(27, 37, 64, 0.7);
+      border: 1px solid var(--hairline-border);
+      border-radius: 50px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-emerald);
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.04em;
+    }
+
+    .credit-line-top {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      letter-spacing: 0.06em;
+    }
+
+    .credit-line-top .highlight { color: var(--accent-gold); font-weight: 600; }
+
+    .hero-title {
+      font-size: 3.2rem;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 2.25rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    /* Mission Section */
+    .mission-section {
+      padding: 5rem 0;
+      border-bottom: 1px solid var(--hairline-border);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 3.5rem auto;
+    }
+
+    .section-header .tag {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .section-header h2 { font-size: 2.2rem; margin-bottom: 0.75rem; }
+    .section-header p { color: var(--text-muted); font-size: 1.05rem; }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .mission-card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--hairline-border);
+      border-radius: var(--radius-md);
+      padding: 2.25rem 1.75rem;
+      transition: all var(--transition-normal);
+      position: relative;
+    }
+
+    .mission-card:hover {
+      border-color: var(--hairline-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    }
+
+    .card-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--panel-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-gold);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--hairline-border);
+    }
+
+    .mission-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+    .mission-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+    /* Join Section */
+    .join-section {
+      padding: 6rem 0;
+      border-bottom: 1px solid var(--hairline-border);
+    }
+
+    .join-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+
+    .join-info h2 { font-size: 2.4rem; margin-bottom: 1.25rem; }
+    .join-info p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; }
+
+    .stats-list { display: flex; flex-direction: column; gap: 1rem; }
+    .stat-item { display: flex; align-items: center; gap: 0.85rem; font-size: 0.95rem; color: var(--text-main); }
+    .stat-bullet {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: rgba(31, 174, 122, 0.15); color: var(--accent-emerald);
+      display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+    }
+
+    .form-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--hairline-border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .form-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .form-subtitle { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.25rem; }
+
+    .form-label {
+      display: block; font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--text-main); margin-bottom: 0.5rem; letter-spacing: 0.02em;
+    }
+
+    .form-label .req { color: var(--accent-gold); }
+
+    .form-input, .form-select {
+      width: 100%; padding: 0.85rem 1rem; background: var(--panel-light);
+      border: 1px solid var(--hairline-border); border-radius: var(--radius-sm);
+      color: var(--text-main); font-family: var(--font-body); font-size: 0.95rem;
+      transition: border-color var(--transition-fast);
+    }
+
+    .form-input:focus, .form-select:focus { border-color: var(--accent-gold); outline: none; }
+    .form-select option { background-color: var(--panel-bg); color: var(--text-main); }
+
+    .status-msg { margin-top: 1rem; padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; display: none; }
+    .status-msg.success { display: block; background: rgba(31, 174, 122, 0.15); border: 1px solid var(--accent-emerald); color: #6EE7B7; }
+    .status-msg.error { display: block; background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #FCA5A5; }
+
+    /* Directory / Village Square Section */
+    .directory-section { padding: 6rem 0 8rem 0; min-height: 800px; }
+
+    .controls-wrapper {
+      background: var(--panel-bg);
+      border: 1px solid var(--hairline-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-box { position: relative; flex: 1; }
+    .search-input {
+      width: 100%; padding: 0.9rem 1rem 0.9rem 2.75rem; background: var(--panel-light);
+      border: 1px solid var(--hairline-border); border-radius: var(--radius-sm);
+      color: var(--text-main); font-size: 0.95rem;
+    }
+
+    .search-input:focus { border-color: var(--accent-gold); outline: none; }
+    .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+
+    .lga-select-filter {
+      width: 220px;
+      padding: 0.9rem 1rem;
+      background: var(--panel-light);
+      border: 1px solid var(--hairline-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 0.875rem;
+    }
+
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    .chip {
+      padding: 0.4rem 0.85rem; border-radius: 50px; font-size: 0.8rem; font-family: var(--font-mono);
+      background: var(--panel-light); color: var(--text-muted); border: 1px solid var(--hairline-border);
+      cursor: pointer; transition: all var(--transition-fast); user-select: none;
+    }
+
+    .chip:hover { color: var(--text-main); border-color: rgba(234, 237, 245, 0.2); }
+    .chip.active { background: var(--accent-gold); color: #0A0F1E; border-color: var(--accent-gold); font-weight: 600; }
+
+    .directory-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); }
+    .directory-meta .num { color: var(--accent-gold); font-weight: 700; }
+
+    .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+
+    /* Resident Cards */
+    .resident-card {
+      background: var(--panel-bg); border: 1px solid var(--hairline-border); border-radius: var(--radius-md);
+      padding: 1.5rem; transition: all var(--transition-normal); display: flex; flex-direction: column; position: relative;
+    }
+
+    .resident-card:hover { border-color: var(--hairline-hover); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+    /* 🎲 Random Spotlight Gold Pulse Animation */
+    @keyframes goldPulse {
+      0% { box-shadow: 0 0 0 0 rgba(242, 183, 5, 0.8); border-color: #F2B705; }
+      50% { box-shadow: 0 0 30px 10px rgba(242, 183, 5, 0.5); border-color: #F2B705; }
+      100% { box-shadow: 0 0 0 0 rgba(242, 183, 5, 0); }
+    }
+
+    .resident-card.spotlight-active {
+      animation: goldPulse 2.5s infinite;
+      border: 2px solid #F2B705 !important;
+    }
+
+    .spotlight-badge {
+      background: linear-gradient(135deg, #F2B705, #FF9900);
+      color: #0A0F1E;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 50px;
+      display: inline-block;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-top { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .avatar-node {
+      width: 52px; height: 52px; border-radius: 50%; background: var(--panel-light);
+      border: 1px solid var(--hairline-border); display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-weight: 700; color: var(--accent-gold); font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    .card-meta { overflow: hidden; flex: 1; }
+    .resident-name { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pills-wrapper { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+
+    .profession-pill { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(31, 174, 122, 0.12); color: var(--accent-emerald); border: 1px solid rgba(31, 174, 122, 0.3); }
+    .lga-pill { font-family: var(--font-mono); font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(242, 183, 5, 0.12); color: var(--accent-gold); border: 1px solid rgba(242, 183, 5, 0.3); }
+
+    .card-links { margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--hairline-border); display: flex; flex-direction: column; gap: 0.6rem; }
+    .card-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-family: var(--font-mono); transition: color var(--transition-fast); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-link:hover { color: var(--accent-gold); }
+    .card-link.whatsapp-link { color: #25D366; }
+    .card-link.whatsapp-link:hover { color: #4ADE80; }
+
+    /* Modal Windows */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .modal-box { background: #131B2F; border: 1px solid rgba(242,183,5,0.3); border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: #8B93A7; font-size: 1.2rem; cursor: pointer; }
+
+    /* Verify Tabs */
+    .verify-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-radius: 8px; overflow: hidden; border: 1px solid rgba(234,237,245,0.1); }
+    .verify-tab-btn { flex: 1; padding: 0.65rem 1rem; background: rgba(255,255,255,0.03); border: none; color: #8B93A7; font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+    .verify-tab-btn.active { background: rgba(242,183,5,0.12); color: #F2B705; border-bottom: 2px solid #F2B705; }
+    .verify-tab-panel { display: none; }
+    .verify-tab-panel.active { display: block; }
+
+    /* PIN dots */
+    .pin-dots { display: flex; gap: 0.75rem; justify-content: center; margin: 1rem 0; }
+    .pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(234,237,245,0.2); transition: background 0.2s; }
+    .pin-dot.filled { background: #F2B705; border-color: #F2B705; }
+
+    /* Social icons row */
+    .social-icons-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .social-icon-link { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(234,237,245,0.1); text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
+    .social-icon-link:hover { background: rgba(242,183,5,0.15); border-color: rgba(242,183,5,0.4); transform: translateY(-2px); }
+
+    /* My Account button on card */
+    .my-account-btn { display: flex; align-items: center; gap: 0.4rem; background: rgba(242,183,5,0.08); color: #F2B705; border: 1px solid rgba(242,183,5,0.25); padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; width: 100%; justify-content: center; margin-top: 6px; font-family: var(--font-mono); }
+    .my-account-btn:hover { background: rgba(242,183,5,0.18); border-color: rgba(242,183,5,0.5); }
+    .verified-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; color: #1FAE7A; font-family: var(--font-mono); background: rgba(31,174,122,0.1); border: 1px solid rgba(31,174,122,0.3); padding: 2px 7px; border-radius: 50px; }
+
+    /* Edit form fields */
+    .edit-field { margin-bottom: 0.9rem; }
+    .edit-field label { display: block; font-size: 0.78rem; color: #8B93A7; font-family: var(--font-mono); margin-bottom: 0.3rem; }
+    .edit-field input, .edit-field textarea { width: 100%; padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.9rem; font-family: var(--font-body); transition: border-color 0.2s; }
+    .edit-field input:focus, .edit-field textarea:focus { border-color: #F2B705; outline: none; }
+    .edit-field textarea { resize: vertical; min-height: 70px; }
+
+    /* Floating Side Scroll Widget */
+    .floating-scroll-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(19, 27, 47, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(242, 183, 5, 0.35);
+      border-radius: 30px;
+      padding: 8px 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(242, 183, 5, 0.15);
+      transition: all 0.3s ease;
+    }
+    .floating-scroll-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(234, 237, 245, 0.12);
+      color: #EAEDF5;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .floating-scroll-btn:hover {
+      background: var(--accent-gold);
+      color: #0A0F1E;
+      border-color: var(--accent-gold);
+      transform: scale(1.1);
+      box-shadow: 0 0 12px rgba(242, 183, 5, 0.5);
+    }
+    .floating-scroll-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Footer */
+    .site-footer { border-top: 1px solid var(--hairline-border); padding: 3rem 0; background: rgba(7, 11, 22, 0.92); margin-top: auto; backdrop-filter: blur(10px); }
+    .footer-flex { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.25rem; }
+    .footer-credit { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted); letter-spacing: 0.05em; }
+    .footer-credit strong { color: var(--accent-gold); }
+    .footer-copy { font-size: 0.8rem; color: rgba(139, 147, 167, 0.6); }
+
+    /* ======================================================
+       RESPONSIVE — TABLET (≤860px)
+    ====================================================== */
+    @media (max-width: 860px) {
+      .container { padding: 0 1rem; }
+
+      /* Header */
+      .site-header { padding: 0.6rem 0; }
+      .nav-wrapper {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand-logo { justify-content: flex-start; }
+      .brand-logo img { height: 44px !important; }
+      .brand-title span:first-child { font-size: 0.85rem !important; }
+      .brand-title .brand-sub { font-size: 0.58rem !important; }
+      .nav-links { display: none; }
+      .nav-wrapper > div:last-child {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      #user-inbox-btn { font-size: 0.75rem; padding: 6px 10px; }
+      .btn.btn-gold { padding: 6px 12px; font-size: 0.8rem; }
+
+      /* Hero */
+      .hero-section { padding: 3.5rem 0 3rem; }
+      .hero-title { font-size: clamp(1.7rem, 6vw, 2.8rem); }
+      .hero-subtitle { font-size: 0.92rem; line-height: 1.65; padding: 0 0.5rem; }
+      .hero-actions { flex-direction: column; width: 100%; gap: 0.65rem; }
+      .hero-actions .btn { width: 100%; text-align: center; }
+      .eyebrow-badge { font-size: 0.7rem; }
+
+      /* Mission grid */
+      .mission-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+      /* Join / Form */
+      .join-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+      .form-card { padding: 1.5rem 1.1rem; }
+
+      /* Directory search */
+      .search-row { flex-direction: column; gap: 0.65rem; }
+      .search-box, .lga-select-filter, #btn-spotlight { width: 100%; }
+      .filter-chips { gap: 0.4rem; padding-bottom: 0.25rem; overflow-x: auto; flex-wrap: nowrap; }
+      .chip { white-space: nowrap; flex-shrink: 0; }
+
+      /* Directory grid */
+      .directory-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.9rem; }
+
+      /* Modals */
+      .modal-box {
+        width: 96vw !important;
+        max-width: 98vw !important;
+        padding: 1.2rem !important;
+        border-radius: 14px !important;
+        max-height: 92vh !important;
+        overflow-y: auto;
+      }
+    }
+
+    /* ======================================================
+       RESPONSIVE — MOBILE (≤480px)  — Most Android/iPhone sizes
+    ====================================================== */
+    @media (max-width: 480px) {
+      /* Header */
+      .site-header { padding: 0.5rem 0; }
+      .nav-wrapper { gap: 0.4rem; }
+      .brand-logo img { height: 38px !important; }
+      .brand-title span:first-child { font-size: 0.78rem !important; letter-spacing: 0.05em !important; }
+      .brand-title .brand-sub { display: none; }
+      #user-inbox-btn { font-size: 0.7rem; padding: 5px 8px; }
+      .btn.btn-gold { padding: 5px 10px; font-size: 0.75rem; }
+
+      /* Hero */
+      .hero-section { padding: 2.75rem 0 2.5rem; }
+      .hero-content { padding: 0 0.5rem; }
+      .hero-title { font-size: clamp(1.5rem, 7.5vw, 2.2rem); line-height: 1.2; }
+      .hero-subtitle { font-size: 0.87rem; line-height: 1.6; margin-top: 0.75rem; }
+      .eyebrow-badge { font-size: 0.65rem; padding: 0.28rem 0.65rem; }
+      .credit-line-top { font-size: 0.65rem; }
+
+      /* Mission grid → 1 col */
+      .mission-grid { grid-template-columns: 1fr; }
+      .mission-card { padding: 1.25rem 1rem; }
+
+      /* Directory */
+      .directory-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+      .resident-card { padding: 1rem; }
+      .card-top { gap: 0.65rem; }
+      .avatar-node { width: 42px; height: 42px; font-size: 0.9rem; flex-shrink: 0; }
+      .resident-name { font-size: 0.95rem; }
+      .resident-track { font-size: 0.72rem; }
+      .card-bio { font-size: 0.8rem; -webkit-line-clamp: 2; }
+      .skills-row { flex-wrap: wrap; gap: 0.3rem; }
+      .skill-tag { font-size: 0.68rem; padding: 0.2rem 0.5rem; }
+      .card-footer { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+      .card-footer .btn-my-account { width: 100%; text-align: center; justify-content: center; }
+
+      /* Filter chips */
+      .filter-chips { gap: 0.3rem; }
+      .chip { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
+
+      /* Section headers */
+      .section-header h2 { font-size: 1.5rem; }
+      .section-header p { font-size: 0.85rem; }
+
+      /* Form */
+      .form-card { padding: 1.25rem 0.9rem; }
+      .form-card h3 { font-size: 1.1rem; }
+      .form-card input, .form-card select, .form-card textarea { font-size: 0.88rem; }
+
+      /* Modals */
+      .modal-box {
+        width: 97vw !important;
+        max-width: 99vw !important;
+        padding: 1rem !important;
+        border-radius: 12px !important;
+        max-height: 94vh !important;
+      }
+      .modal-box h3 { font-size: 1.05rem; }
+      .edit-field label { font-size: 0.73rem; }
+      .edit-field input, .edit-field textarea { font-size: 0.85rem; padding: 0.6rem 0.75rem; }
+
+      /* PIN Pad */
+      .pin-dots { gap: 0.6rem; margin-bottom: 1rem; }
+      .pin-dot { width: 14px; height: 14px; }
+      .pin-key { font-size: 1.1rem; padding: 0.7rem; }
+      .pin-grid { gap: 0.4rem; }
+
+      /* Inbox modal */
+      #inbox-member-select { font-size: 0.85rem; }
+
+      /* Floating Widget Mobile Adjustments */
+      .floating-scroll-widget {
+        bottom: 12px;
+        right: 10px;
+        padding: 4px 3px;
+        gap: 4px;
+        opacity: 0.85;
+      }
+      .floating-scroll-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 0.85rem;
+      }
+
+      /* Footer */
+      .footer-credit { font-size: 0.75rem; }
+      .footer-copy { font-size: 0.72rem; }
+      .site-footer { padding: 2rem 0; }
+    }"
+
+    /* ======================================================
+       RESPONSIVE — SMALL PHONES (≤380px) — iPhone SE, older Androids
+    ====================================================== */
+    @media (max-width: 380px) {
+      .hero-title { font-size: 1.4rem; }
+      .hero-subtitle { font-size: 0.82rem; }
+      .brand-logo img { height: 32px !important; }
+      .brand-title span:first-child { font-size: 0.7rem !important; }
+      .modal-box { padding: 0.85rem !important; }
+      .pin-key { font-size: 1rem; padding: 0.6rem; }
+      .resident-name { font-size: 0.88rem; }
+      .avatar-node { width: 38px; height: 38px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="container nav-wrapper">
+      <a href="#" id="brand-logo-trigger" class="brand-logo" aria-label="Abia TechRise 3.0 Remembrance Villa Homepage" title="Triple-click for Master Admin" style="gap: 0.75rem; align-items: center;">
+        <img src="assets/app-logo.png" alt="Abia TechRise 3.0 Logo" style="height: 58px; width: auto; object-fit: contain; filter: drop-shadow(0 0 10px rgba(242,183,5,0.5)) drop-shadow(0 2px 8px rgba(0,0,0,0.6));" />
+        <div class="brand-title">
+          <span style="font-size: 1rem; font-weight: 800; letter-spacing: 0.08em;">ABIA TECHRISE 3.0</span>
+          <span class="brand-sub" style="font-size: 0.65rem; letter-spacing: 0.12em; font-weight: 700;">REMEMBRANCE VILLA</span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#mission">Mission</a></li>
+          <li><a href="#village-hut">🛖 Village Hut</a></li>
+          <li><a href="#join">Join Village</a></li>
+          <li><a href="#directory">Village Square</a></li>
+        </ul>
+      </nav>
+
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <button id="user-inbox-btn" onclick="openInboxModal()" style="background: rgba(31,174,122,0.1); border: 1px solid rgba(31,174,122,0.3); color: #1FAE7A; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">✉️ My Inbox</button>
+        <!-- Secret Admin Button (Hidden by default, unlocked via /admin or Ctrl+Shift+A) -->
+        <button id="admin-login-btn" onclick="openAdminModal()" style="display: none; background: transparent; border: 1px solid rgba(242,183,5,0.3); color: #F2B705; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: var(--font-body);">👑 Master Admin</button>
+        <a href="#join" class="btn btn-gold" id="desktop-join-btn">Join Villa</a>
+        <button id="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(242,183,5,0.3); color: #F2B705; font-size: 1.2rem; padding: 6px 10px; border-radius: 8px; cursor: pointer;">
+          ☰
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Slide-out Navigation Drawer -->
+    <div id="mobile-nav-drawer" style="display: none; background: rgba(10, 15, 30, 0.96); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(242, 183, 5, 0.3); padding: 1.25rem; flex-direction: column; gap: 0.85rem; text-align: center;">
+      <a href="#mission" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">ðŸŽ¯ Mission</a>
+      <a href="#village-hut" onclick="toggleMobileMenu()" style="color: #F2B705; font-size: 1rem; text-decoration: none; font-weight: 700;">🛖 Village Hut (Town Hall)</a>
+      <a href="#join" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">📍 Join Village</a>
+      <a href="#directory" onclick="toggleMobileMenu()" style="color: #EAEDF5; font-size: 1rem; text-decoration: none; font-weight: 600;">🏙️™ï¸ Village Square (Directory)</a>
+      <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
+        <button onclick="toggleMobileMenu(); openInboxModal();" style="flex:1; background: rgba(31,174,122,0.15); border: 1px solid #1FAE7A; color: #1FAE7A; padding: 8px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">✉️ My Inbox</button>
+        <a href="#join" onclick="toggleMobileMenu()" class="btn btn-gold" style="flex:1; padding: 8px; font-size: 0.85rem;">Join Villa</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Village Announcement Banner -->
+  <div id="announcement-banner" style="display: none; background: linear-gradient(135deg, rgba(242,183,5,0.15), rgba(31,174,122,0.1)); border-bottom: 1px solid rgba(242,183,5,0.3); padding: 0.75rem 2rem; text-align: center; font-size: 0.9rem; color: #F2B705;">
+    <span id="announcement-text">📢 Village Announcement</span>
+    <button onclick="clearAnnouncement()" style="margin-left: 1rem; background: transparent; border: none; color: #8B93A7; cursor: pointer; font-size: 0.8rem;">✕ Dismiss</button>
+  </div>
+
+  <!-- Master Admin Modal -->
+  <div id="admin-modal" class="modal-overlay">
+    <div class="modal-box">
+      <button onclick="closeAdminModal()" class="modal-close">✕</button>
+      
+      <div id="admin-login-panel">
+        <h3 style="color: #F2B705; margin-bottom: 0.5rem;">👑 Master Admin Access</h3>
+        <p style="color: #8B93A7; font-size: 0.875rem; margin-bottom: 1.5rem;">Enter Key to unlock analytics and moderation dashboard.</p>
+        <input type="password" id="admin-key-input" placeholder="Enter Master Admin Key (e.g. 3030)" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
+        <button onclick="verifyAdminKey()" style="width: 100%; padding: 0.75rem; background: #F2B705; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;">Unlock Admin Dashboard 🔓</button>
+        <p id="admin-key-error" style="color: #EF4444; font-size: 0.8rem; margin-top: 0.5rem; display: none;">Incorrect Admin Key. Try again.</p>
+      </div>
+
+      <div id="admin-control-panel" style="display: none;">
+        <h3 style="color: #F2B705; margin-bottom: 0.25rem;">👑 Master Admin Dashboard</h3>
+        <p style="color: #1FAE7A; font-size: 0.8rem; margin-bottom: 1.25rem;">✅ Authenticated as Master Admin</p>
+        
+        <!-- Live Analytics Stats Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; text-align: center;">
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(242,183,5,0.2);">
+            <div style="font-size: 1.3rem; font-weight: 700; color: #F2B705;" id="stat-visits">0</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">ðŸ‘ï¸ Page Visits</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.2);">
+            <div style="font-size: 1.3rem; font-weight: 700; color: #1FAE7A;" id="stat-alumni">827</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">ðŸ‘¥ Total Alumni</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(56,189,248,0.2);">
+            <div style="font-size: 1.3rem; font-weight: 700; color: #38BDF8;" id="stat-edited">0</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">âœï¸ Profiles Edited</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📢 Post Village Announcement</label>
+          <textarea id="announcement-input" placeholder="Type announcement for all villagers..." style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.9rem; min-height: 70px; resize: vertical; font-family: var(--font-body);"></textarea>
+          <button onclick="postAnnouncement()" style="margin-top: 0.5rem; width: 100%; padding: 0.6rem; background: rgba(242,183,5,0.15); color: #F2B705; border: 1px solid rgba(242,183,5,0.3); border-radius: 8px; cursor: pointer; font-size: 0.9rem;">📢 Post Announcement</button>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📍¥ Export Directory</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <button onclick="exportDirectory('json')" style="flex: 1; padding: 0.6rem; background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️ Export JSON</button>
+            <button onclick="exportDirectory('csv')" style="flex: 1; padding: 0.6rem; background: rgba(56,189,248,0.1); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️ Export CSV</button>
+          </div>
+        </div>
+
+        <!-- Admin Delete Member -->
+        <div style="margin-bottom: 1.25rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 0.85rem;">
+          <label style="color: #FCA5A5; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">🗑️ Delete a Member Profile</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input id="admin-delete-id" placeholder="Member ID (e.g. m-5)" style="flex:1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.85rem;">
+            <button onclick="adminDeleteMember()" style="padding: 0.6rem 1rem; background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Delete</button>
+          </div>
+          <p id="admin-delete-msg" style="font-size:0.78rem; margin-top:0.4rem; display:none;"></p>
+        </div>
+
+        <button onclick="adminLogout()" style="width: 100%; padding: 0.6rem; background: transparent; color: #8B93A7; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔒 Logout Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VERIFY IDENTITY MODAL (STUDENT ID CARD ONLY) ========== -->
+  <div id="verify-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 460px;">
+      <button onclick="closeVerifyModal()" class="modal-close">✕</button>
+      <div style="text-align:center; margin-bottom:1.25rem;">
+        <div style="font-size:2.2rem; margin-bottom:0.3rem;">🪪</div>
+        <h3 style="color:#F2B705; margin-bottom:0.3rem;">Verify Student ID Card</h3>
+        <p style="color:#8B93A7; font-size:0.85rem;">Claiming profile for <strong id="verify-member-name" style="color:#EAEDF5;">Resident</strong></p>
+      </div>
+
+      <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1rem; line-height:1.5;">Enter your TechRise Student ID card number to claim and secure your profile.</p>
+      
+      <div class="edit-field">
+        <label>Your Student ID Card Number</label>
+        <input type="text" id="id-card-input" placeholder="e.g. tr3/std/jsc/037" autocomplete="off" style="text-transform:lowercase; font-size:1rem; letter-spacing:0.04em;">
+      </div>
+      <p id="id-verify-error" style="color:#EF4444; font-size:0.8rem; display:none; margin-bottom:0.75rem;"></p>
+      <button onclick="verifyByIdCard()" style="width:100%; padding:0.78rem; background:#F2B705; color:#0A0F1E; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.95rem;">Verify ID Card & Create PIN ✓</button>
+    </div>
+  </div>
+
+  <!-- ========== PIN CREATION MODAL ========== -->
+  <div id="pin-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:400px; text-align:center;">
+      <button onclick="closePinModal()" class="modal-close">✕</button>
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+      <h3 style="color:#F2B705; margin-bottom:0.3rem;" id="pin-modal-title">Create Your 4-Digit PIN</h3>
+      <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1.25rem;" id="pin-modal-subtitle">This PIN will be your personal key to edit your profile.</p>
+
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+
+      <!-- Number pad -->
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; max-width:240px; margin:0 auto 1rem auto;">
+        <button class="numpad-btn" onclick="pinPad(1)">1</button>
+        <button class="numpad-btn" onclick="pinPad(2)">2</button>
+        <button class="numpad-btn" onclick="pinPad(3)">3</button>
+        <button class="numpad-btn" onclick="pinPad(4)">4</button>
+        <button class="numpad-btn" onclick="pinPad(5)">5</button>
+        <button class="numpad-btn" onclick="pinPad(6)">6</button>
+        <button class="numpad-btn" onclick="pinPad(7)">7</button>
+        <button class="numpad-btn" onclick="pinPad(8)">8</button>
+        <button class="numpad-btn" onclick="pinPad(9)">9</button>
+        <button class="numpad-btn" onclick="pinPad('clear')" style="color:#EF4444;">✕</button>
+        <button class="numpad-btn" onclick="pinPad(0)">0</button>
+        <button class="numpad-btn" onclick="pinPad('back')" style="color:#F2B705;">⌫</button>
+      </div>
+      <p id="pin-error" style="color:#EF4444; font-size:0.8rem; display:none; margin-bottom:0.5rem;"></p>
+    </div>
+  </div>
+
+  <!-- ========== PROFILE EDIT MODAL ========== -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:520px;">
+      <button onclick="closeEditModal()" class="modal-close">✕</button>
+      <h3 style="color:#F2B705; margin-bottom:0.25rem;">âœï¸ Edit My Profile</h3>
+      <p style="color:#8B93A7; font-size:0.82rem; margin-bottom:1.25rem;">Update your contact details, profile picture, and social links. Changes are saved instantly.</p>
+
+      <input type="hidden" id="edit-member-id">
+
+      <div class="edit-field">
+        <label>🖼️ Profile Photo URL</label>
+        <input type="url" id="edit-photo-url" placeholder="https://example.com/myphoto.jpg">
+      </div>
+      <div class="edit-field">
+        <label>📍¸ Or Upload Photo File</label>
+        <input type="file" id="edit-photo-file" accept="image/*">
+      </div>
+      <div class="edit-field">
+        <label>📍ž Phone Number</label>
+        <input type="tel" id="edit-phone" placeholder="e.g. +2348031234567">
+      </div>
+      <div class="edit-field">
+        <label>💼 LinkedIn URL</label>
+        <input type="url" id="edit-linkedin" placeholder="linkedin.com/in/username">
+      </div>
+      <div class="edit-field">
+        <label>📍˜ Facebook URL</label>
+        <input type="url" id="edit-facebook" placeholder="facebook.com/username">
+      </div>
+      <div class="edit-field">
+        <label>ðŸ¦ Twitter / X URL</label>
+        <input type="url" id="edit-twitter" placeholder="twitter.com/username">
+      </div>
+      <div class="edit-field">
+        <label>📍¸ Instagram URL</label>
+        <input type="url" id="edit-instagram" placeholder="instagram.com/username">
+      </div>
+      <div class="edit-field">
+        <label>ðŸ™ GitHub URL</label>
+        <input type="url" id="edit-github" placeholder="github.com/username">
+      </div>
+      <div class="edit-field">
+        <label>🌐 Portfolio / Website</label>
+        <input type="url" id="edit-website" placeholder="https://yoursite.com">
+      </div>
+      <div class="edit-field">
+        <label>📍 Short Bio (max 200 chars)</label>
+        <textarea id="edit-bio" placeholder="Tell your cohort who you are..." maxlength="200"></textarea>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
+        <button onclick="saveProfileEdits()" style="flex:1; padding:0.75rem; background:#F2B705; color:#0A0F1E; border:none; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Changes</button>
+        <button onclick="closeEditModal()" style="padding:0.75rem 1rem; background:transparent; color:#8B93A7; border:1px solid rgba(255,255,255,0.1); border-radius:8px; cursor:pointer;">Cancel</button>
+      </div>
+      <p id="edit-save-msg" style="margin-top:0.75rem; font-size:0.82rem; display:none;"></p>
+    </div>
+  </div>
+
+  <!-- Send Message Modal -->
+  <div id="send-msg-modal" class="modal-overlay">
+    <div class="modal-box">
+      <button onclick="closeSendMessageModal()" class="modal-close">✕</button>
+      <h3 style="color: #F2B705; margin-bottom: 0.5rem;">✉️ Send Private Message</h3>
+      <p style="color: #8B93A7; font-size: 0.85rem; margin-bottom: 1rem;">To: <span id="recipient-name-display" style="color: #EAEDF5; font-weight: 700;">Resident</span></p>
+
+      <form id="private-msg-form">
+        <input type="hidden" id="recipient-id-input">
+        <div style="margin-bottom: 0.85rem;">
+          <label style="color: #CBD5E1; font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Your Name <span style="color:#F2B705">*</span></label>
+          <input type="text" id="sender-name" class="form-input" placeholder="e.g. Engr Josiah Collins Chinaza" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label style="color: #CBD5E1; font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Your Track</label>
+            <input type="text" id="sender-track" class="form-input" placeholder="e.g. Software Engineer">
+          </div>
+          <div>
+            <label style="color: #CBD5E1; font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Your LGA</label>
+            <input type="text" id="sender-lga" class="form-input" placeholder="e.g. Obingwa">
+          </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="color: #CBD5E1; font-size: 0.8rem; display: block; margin-bottom: 0.3rem;">Message Text <span style="color:#F2B705">*</span></label>
+          <textarea id="sender-text" class="form-input" rows="3" placeholder="Type your message..." required></textarea>
+        </div>
+        <button type="submit" id="send-msg-btn" style="width: 100%; padding: 0.75rem; background: #1FAE7A; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">✉️ Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Student Inbox Modal -->
+  <div id="inbox-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 600px;">
+      <button onclick="closeInboxModal()" class="modal-close">✕</button>
+      
+      <div id="inbox-login-panel">
+        <h3 style="color: #1FAE7A; margin-bottom: 0.5rem;">📩 Resident Private Inbox</h3>
+        <p style="color: #8B93A7; font-size: 0.85rem; margin-bottom: 1.25rem;">Select your name and enter your 4-Digit Security PIN to view messages sent to your profile.</p>
+
+        <div class="edit-field">
+          <label style="color:#CBD5E1;">Select Your Resident Profile</label>
+          <select id="inbox-member-select" class="form-select" style="margin-bottom:0.85rem;">
+            <option value="">-- Select Your Name --</option>
+          </select>
+        </div>
+        <div class="edit-field">
+          <label style="color:#CBD5E1;">Your 4-Digit PIN</label>
+          <input type="password" id="inbox-pin-input" placeholder="Enter 4-Digit Security PIN (default 3030)" maxlength="4" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
+        </div>
+        <button onclick="unlockInbox()" style="width: 100%; padding: 0.75rem; background: #1FAE7A; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Open My Inbox 🔓</button>
+        <p id="inbox-error" style="color:#EF4444; font-size:0.8rem; display:none; margin-top:0.5rem;"></p>
+      </div>
+
+      <div id="inbox-content-panel" style="display: none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h3 style="color: #1FAE7A;" id="inbox-recipient-heading">📩 My Messages</h3>
+          <button onclick="closeInboxModal()" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:#8B93A7; padding:4px 10px; border-radius:6px; font-size:0.78rem; cursor:pointer;">Switch Resident</button>
+        </div>
+        <div id="inbox-messages-list" style="display: grid; gap: 1rem; max-height: 400px; overflow-y: auto;">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <canvas id="hero-canvas"></canvas>
+      <div class="container hero-content">
+        <div class="eyebrow-badge">COHORT 3 � REMEMBRANCE VILLA</div>
+        
+        <div class="credit-line-top">
+          DEVELOPED BY <span class="highlight">ENGR JOSIAH COLLINS CHINAZA</span> � PYTHON TRACK
+        </div>
+
+        <h1 class="hero-title">
+          The program ends.<br>
+          The village <span class="text-gold">doesn't have to.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          When physical training concludes, our collective strength remains. Remembrance Villa is the perpetual digital square for Abia TechRise 3.0 alumni to stay reachable, share active projects, and unlock opportunities together.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#join" class="btn btn-gold">Add Your Details</a>
+          <a href="#directory" class="btn btn-outline">Walk Through The Village</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section id="mission" class="mission-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">Cohort 3 Network</span>
+          <h2>YOU WILL LIKE IT</h2>
+          <p>Why this digital village exists for every Abia TechRise 3.0 graduate.</p>
+        </div>
+
+        <div class="mission-grid">
+          <div class="mission-card">
+            <div class="card-icon-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3>Stay Reachable</h3>
+            <p>Physical classes wrap up, but line of sight remains open. Update your contact info anytime so team members, leads, and founders can find you directly.</p>
+          </div>
+
+          <div class="mission-card">
+            <div class="card-icon-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <h3>Show What You Can Do</h3>
+            <p>Display your live portfolio, LinkedIn profile, and active profession track. Let fellow alumni and visitors inspect your latest builds and professional milestones.</p>
+          </div>
+
+          <div class="mission-card">
+            <div class="card-icon-box">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+            </div>
+            <h3>Open Doors For Each Other</h3>
+            <p>Collaborate on freelance gigs, refer clients, hire fellow graduates, and form cross-functional teams directly within our verified directory.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Village Hut 🛖 (Community Group Chat & Trending Topics) -->
+    <section id="village-hut" class="mission-section" style="background: rgba(19, 27, 47, 0.4); border-bottom: 1px solid var(--hairline-border);">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">🛖 Community Town Hall</span>
+          <h2>The Village Hut</h2>
+          <p>Discuss trending tech topics, share opportunities, and chat with verified Cohort 3 villagers.</p>
+        </div>
+
+        <div style="max-width: 860px; margin: 0 auto;">
+          <!-- Post Composer Box -->
+          <div style="background: var(--panel-bg); border: 1px solid var(--hairline-border); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-size: 1.1rem; color: var(--accent-gold); display: flex; align-items: center; gap: 0.5rem;">
+                âœï¸ Start a Discussion
+              </h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                🔒 Only Verified Villagers (with PIN) can post
+              </span>
+            </div>
+
+            <form id="village-hut-form" onsubmit="handlePostToVillageHut(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+                <div>
+                  <label class="form-label">Your Resident Profile <span class="req">*</span></label>
+                  <select id="hut-author-select" class="form-select" required>
+                    <option value="">-- Select Your Name --</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">Topic Tag</label>
+                  <select id="hut-topic-select" class="form-select">
+                    <option value="🔥 Trending Topic">🔥 Trending Topic</option>
+                    <option value="💡 Tech & Coding">💡 Tech & Coding</option>
+                    <option value="💼 Job Opportunity">💼 Job Opportunity</option>
+                    <option value="🎉 Announcement">🎉 Announcement</option>
+                    <option value="🤝 Collaboration">🤝 Collaboration</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 0.85rem;">
+                <textarea id="hut-post-text" class="form-input" rows="3" placeholder="What's on your mind? Share news, project updates, or ask questions to the village..." required style="resize: vertical; min-height: 80px;"></textarea>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 140px; gap: 0.75rem; align-items: center;">
+                <div>
+                  <input type="password" id="hut-pin-input" class="form-input" placeholder="Enter your 4-Digit Security PIN to post *" maxlength="4" required style="font-size: 0.9rem;">
+                </div>
+                <button type="submit" id="hut-submit-btn" class="btn btn-gold" style="width: 100%; padding: 0.75rem;">
+                  Post 🛖
+                </button>
+              </div>
+              <p id="hut-post-status" style="margin-top: 0.75rem; font-size: 0.82rem; display: none;"></p>
+            </form>
+          </div>
+
+          <!-- Discussion Feed Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+              💬 Recent Discussions (<span id="hut-post-count" style="color: var(--accent-gold);">0</span>)
+            </h3>
+            <button onclick="loadVillageHutPosts()" class="btn btn-outline" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;">
+              🔄 Refresh Feed
+            </button>
+          </div>
+
+          <!-- Posts Feed Container -->
+          <div id="village-hut-feed" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading Village Hut discussions...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Join Section -->
+    <section id="join" class="join-section">
+      <div class="container join-layout">
+        <div class="join-info">
+          <h2>Claim Your Spot In The Village Square</h2>
+          <p>Whether you completed Enterprise Python, Fullstack Web Development, AI & Machine Learning, UI/UX Design, Cybersecurity, CAD/CAM, or Creative Arts — enter your details so your cohort mates can connect with you.</p>
+
+          <div class="stats-list">
+            <div class="stat-item"><div class="stat-bullet">✓</div><span>Instant inclusion in the live public directory</span></div>
+            <div class="stat-item"><div class="stat-bullet">✓</div><span>Direct links to your LinkedIn, Facebook & Portfolio showcase</span></div>
+            <div class="stat-item"><div class="stat-bullet">✓</div><span>Accessible to fellow alumni and hiring leads</span></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 class="form-title">Join The Village</h3>
+          <p class="form-subtitle">Fill out your details to publish your resident profile if you are not already listed</p>
+
+          <form id="member-form">
+            <div class="form-group">
+              <label class="form-label" for="fullName">Full Name <span class="req">*</span></label>
+              <input type="text" id="fullName" class="form-input" placeholder="e.g. Engr Josiah Collins Chinaza" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="profession">Profession / Skill Track <span class="req">*</span></label>
+              <select id="profession" class="form-select" required>
+                <option value="" disabled selected>Select your track / specialty</option>
+                <option value="AI & Machine Learning">AI & Machine Learning</option>
+                <option value="Computer Aided Design and Manufacturing">Computer Aided Design and Manufacturing (CAD/CAM)</option>
+                <option value="Creative Arts: 2D & 3D Animation">Creative Arts: 2D & 3D Animation</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Enterprise Python: Backend Development">Enterprise Python: Backend Development</option>
+                <option value="Fullstack Web Development with JavaScript">Fullstack Web Development with JavaScript</option>
+                <option value="UI/UX Design">UI/UX Design</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lga">LGA (Local Government Area) <span class="req">*</span></label>
+              <select id="lga" class="form-select" required>
+                <option value="" disabled selected>Select your LGA</option>
+                <option value="Aba North">Aba North</option>
+                <option value="Aba South">Aba South</option>
+                <option value="Arochukwu">Arochukwu</option>
+                <option value="Bende">Bende</option>
+                <option value="Ikwuano">Ikwuano</option>
+                <option value="Isiala Ngwa North">Isiala Ngwa North</option>
+                <option value="Isiala Ngwa South">Isiala Ngwa South</option>
+                <option value="Isuikwuato">Isuikwuato</option>
+                <option value="Obi Ngwa">Obi Ngwa</option>
+                <option value="Ohafia">Ohafia</option>
+                <option value="Osisioma Ngwa">Osisioma Ngwa</option>
+                <option value="Ugwunagbo">Ugwunagbo</option>
+                <option value="Ukwa East">Ukwa East</option>
+                <option value="Ukwa West">Ukwa West</option>
+                <option value="Umuahia North">Umuahia North</option>
+                <option value="Umuahia South">Umuahia South</option>
+                <option value="Umunneochi">Umunneochi</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number</label>
+              <input type="tel" id="phone" class="form-input" placeholder="e.g. +234 803 123 4567">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="photo-file">Profile Picture 📍¸</label>
+              <input type="file" id="photo-file" class="form-input" accept="image/*">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="linkedin">LinkedIn Profile URL</label>
+              <input type="text" id="linkedin" class="form-input" placeholder="linkedin.com/in/username">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="facebook">Facebook Profile URL</label>
+              <input type="text" id="facebook" class="form-input" placeholder="facebook.com/username">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="portfolio">Portfolio / Website URL</label>
+              <input type="text" id="portfolio" class="form-input" placeholder="github.com/username">
+            </div>
+
+            <div class="form-group" style="background: rgba(242, 183, 5, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(242, 183, 5, 0.2);">
+              <label class="form-label" for="securityPin" style="color: #F2B705;">Create 4-Digit Security PIN <span class="req">*</span></label>
+              <input type="password" id="securityPin" class="form-input" maxlength="4" pattern="[0-9]{4}" placeholder="4-Digit PIN (e.g. 1234)" required>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-gold" style="width: 100%;">
+              Join The Village
+            </button>
+
+            <div id="form-status" class="status-msg"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Directory Section -->
+    <section id="directory" class="directory-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="tag">Cohort Directory</span>
+          <h2>The Village Square</h2>
+          <p>Browse, search, and connect with all registered Abia TechRise 3.0 residents.</p>
+        </div>
+
+        <div class="controls-wrapper">
+          <div class="search-row">
+            <div class="search-box">
+              <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="search-input" class="search-input" placeholder="Search residents by name, profession, or LGA...">
+            </div>
+
+            <select id="lga-filter" class="lga-select-filter">
+              <option value="All">All LGAs (17 LGAs)</option>
+              <option value="Aba North">Aba North</option>
+              <option value="Aba South">Aba South</option>
+              <option value="Arochukwu">Arochukwu</option>
+              <option value="Bende">Bende</option>
+              <option value="Ikwuano">Ikwuano</option>
+              <option value="Isiala Ngwa North">Isiala Ngwa North</option>
+              <option value="Isiala Ngwa South">Isiala Ngwa South</option>
+              <option value="Isuikwuato">Isuikwuato</option>
+              <option value="Obi Ngwa">Obi Ngwa</option>
+              <option value="Ohafia">Ohafia</option>
+              <option value="Osisioma Ngwa">Osisioma Ngwa</option>
+              <option value="Ugwunagbo">Ugwunagbo</option>
+              <option value="Ukwa East">Ukwa East</option>
+              <option value="Ukwa West">Ukwa West</option>
+              <option value="Umuahia North">Umuahia North</option>
+              <option value="Umuahia South">Umuahia South</option>
+              <option value="Umunneochi">Umunneochi</option>
+            </select>
+
+            <button id="btn-spotlight" onclick="triggerRandomSpotlight()" class="btn btn-outline" style="border-color: #F2B705; color: #F2B705; white-space: nowrap;">
+              🎲 Meet a Villager
+            </button>
+          </div>
+
+          <div class="filter-chips" id="filter-chips">
+            <button class="chip active" data-category="All">All Tracks</button>
+            <button class="chip" data-category="AI &amp; Machine Learning">AI &amp; Machine Learning</button>
+            <button class="chip" data-category="Fullstack Web Development with JavaScript">Fullstack Web Dev (JS)</button>
+            <button class="chip" data-category="UI/UX Design">UI/UX Design</button>
+            <button class="chip" data-category="Cybersecurity">Cybersecurity</button>
+            <button class="chip" data-category="Enterprise Python: Backend Development">Enterprise Python</button>
+            <button class="chip" data-category="Creative Arts: 2D &amp; 3D Animation">Creative Arts &amp; 3D</button>
+            <button class="chip" data-category="Computer Aided Design and Manufacturing">CAD &amp; Manufacturing</button>
+          </div>
+        </div>
+
+        <div class="directory-meta">
+          <div class="resident-count" id="resident-count-text">
+            Showing <span class="num" id="visible-count">0</span> of <span class="num" id="total-count">0</span> Residents
+          </div>
+        </div>
+
+        <div id="directory-grid" class="directory-grid">
+          <!-- Cards populated dynamically -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-flex">
+      <div class="footer-credit">
+        DEVELOPED BY <strong>ENGR JOSIAH COLLINS CHINAZA</strong> � PYTHON TRACK
+      </div>
+      <p class="footer-copy">
+        Abia TechRise 3.0 Remembrance Villa &copy; 2026 � YOU WILL LIKE IT
+      </p>
+    </div>
+  </footer>
+
+  <style>
+    .numpad-btn {
+      padding: 0.85rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(234,237,245,0.1);
+      border-radius: 10px;
+      color: #EAEDF5;
+      font-size: 1.2rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .numpad-btn:hover { background: rgba(242,183,5,0.15); border-color: rgba(242,183,5,0.4); }
+    .numpad-btn:active { transform: scale(0.92); }
+  </style>
+
+  <script>
+    // ========== FIREBASE CONFIGURATION ==========
+    const firebaseConfig = {
+      apiKey: "AIzaSyAG56pYkP2iI-qCwEqW_5tY3HMhJInYy0U",
+      authDomain: "techrise-village.firebaseapp.com",
+      projectId: "techrise-village",
+      storageBucket: "techrise-village.firebasestorage.app",
+      messagingSenderId: "94746037150",
+      appId: "1:94746037150:web:f18433d5021a31c873e48f",
+      measurementId: "G-YPQ8X2PJ00"
+    };
+
+    let db = null;
+    let auth = null;
+    if (typeof firebase !== 'undefined') {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      auth = firebase.auth();
+      try { firebase.analytics(); } catch(e) {}
+    }
+
+    const LOCAL_STORAGE_KEY = "techrise_village_members_v3";
+    let membersList = [];
+    let currentFilter = "All";
+    let currentLgaFilter = "All";
+    let searchQuery = "";
+
+    // Track Visitor Analytics
+    function recordVisitor() {
+      let visits = parseInt(localStorage.getItem('techrise_visit_count') || '0') + 1;
+      localStorage.setItem('techrise_visit_count', visits.toString());
+      document.getElementById('stat-visits').textContent = visits;
+    }
+
+    // Load Data from Firestore Primary (with members.json fallback)
+    async function loadMembers() {
+      try {
+        if (db) {
+          console.log("Fetching directory from Firestore...");
+          const snapshot = await db.collection('members').get();
+          
+          if (!snapshot.empty) {
+            const firestoreMembers = [];
+            snapshot.forEach(doc => {
+              firestoreMembers.push(doc.data());
+            });
+            // Sort by numerical ID (m-1, m-2, ...)
+            firestoreMembers.sort((a, b) => {
+              const numA = parseInt((a.id || '').replace('m-', '')) || 0;
+              const numB = parseInt((b.id || '').replace('m-', '')) || 0;
+              return numA - numB;
+            });
+            membersList = firestoreMembers;
+            console.log(`Loaded ${membersList.length} members directly from Firestore cloud database.`);
+            renderDirectory();
+            populateVillageHutAuthors();
+            return;
+          } else {
+            console.log("Firestore members collection empty. Initializing migration from members.json...");
+          }
+        }
+      } catch (err) {
+        console.warn("Firestore fetch error, falling back to local JSON:", err);
+      }
+
+      // Fallback: load static members.json and overlay local edits
+      try {
+        const fileRes = await fetch('./members.json');
+        if (fileRes.ok) {
+          const rawMembers = await fileRes.json();
+          // Seed Firestore if db is available
+          if (db) {
+            seedFirestoreFromJSON(rawMembers);
+          }
+          membersList = rawMembers;
+        }
+      } catch (err) {
+        console.warn('members.json read fallback:', err);
+      }
+
+      // Apply any local storage overlays if present
+      try {
+        const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (localData) {
+          const localArray = JSON.parse(localData);
+          localArray.forEach(localMember => {
+            const idx = membersList.findIndex(m => m.id === localMember.id);
+            if (idx !== -1) {
+              membersList[idx] = { ...membersList[idx], ...localMember };
+              if (db) {
+                db.collection('members').doc(localMember.id).set(membersList[idx], { merge: true }).catch(e => console.error(e));
+              }
+            }
+          });
+        }
+      } catch(e) {}
+
+      renderDirectory();
+      populateVillageHutAuthors();
+    }
+
+    // Populate Village Hut author dropdown after members are loaded
+    function populateVillageHutAuthors() {
+      const authorSelect = document.getElementById('hut-author-select');
+      const inboxSelect = document.getElementById('inbox-member-select');
+      if (!authorSelect || membersList.length === 0) return;
+      const sorted = membersList.slice().sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      const optionsHtml = '<option value="">-- Select Your Name --</option>' +
+        sorted.map(m => `<option value="${m.id}">${m.fullName} (${m.profession})</option>`).join('');
+      authorSelect.innerHTML = optionsHtml;
+      // Also populate inbox dropdown
+      if (inboxSelect) inboxSelect.innerHTML = '<option value="">-- Select Your Resident Profile --</option>' +
+        sorted.map(m => `<option value="${m.id}">${m.fullName} (${m.profession})</option>`).join('');
+    }
+
+    // Seed Firestore with all 827 members using batch writes
+    async function seedFirestoreFromJSON(membersArray) {
+      if (!db || !membersArray || membersArray.length === 0) return;
+      try {
+        console.log(`Starting Firestore migration for ${membersArray.length} residents...`);
+        const BATCH_SIZE = 400;
+        for (let i = 0; i < membersArray.length; i += BATCH_SIZE) {
+          const chunk = membersArray.slice(i, i + BATCH_SIZE);
+          const batch = db.batch();
+          chunk.forEach(member => {
+            const docRef = db.collection('members').doc(member.id);
+            batch.set(docRef, member, { merge: true });
+          });
+          await batch.commit();
+          console.log(`Seeded batch ${i / BATCH_SIZE + 1} (${chunk.length} residents)`);
+        }
+        console.log('🎉 Firestore migration complete! All 827 residents are now cloud-persisted.');
+      } catch (err) {
+        console.error('Error seeding Firestore:', err);
+      }
+    }
+
+    // Render Directory
+    function renderDirectory() {
+      const tokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+
+      const filtered = membersList.filter((m) => {
+        const matchesCategory = currentFilter === "All" || m.profession === currentFilter;
+        const matchesLga = currentLgaFilter === "All" || m.lga === currentLgaFilter;
+        
+        // Smart Tokenized Multi-word Search across name, profession, LGA, bio, and phone
+        const fullString = `${m.fullName || ''} ${m.profession || ''} ${m.lga || ''} ${m.phone || ''} ${(m.social && m.social.bio) || ''}`.toLowerCase();
+        const matchesSearch = tokens.length === 0 || tokens.every(token => fullString.includes(token));
+
+        return matchesCategory && matchesLga && matchesSearch;
+      });
+
+      document.getElementById("total-count").textContent = membersList.length;
+      document.getElementById("visible-count").textContent = filtered.length;
+      document.getElementById("stat-alumni").textContent = membersList.length;
+
+      const gridEl = document.getElementById("directory-grid");
+
+      if (filtered.length === 0) {
+        gridEl.innerHTML = `
+          <div style="text-align: center; padding: 4rem; grid-column: 1/-1; background: var(--panel-bg); border-radius: 12px;">
+            <h3>No Residents Found</h3>
+            <p style="color: #8B93A7;">No cohort members match your filter criteria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      gridEl.innerHTML = filtered.map((member) => {
+        const initials = member.fullName ? member.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'TR';
+        const safeName = member.fullName || 'Resident';
+        const safeProf = member.profession || 'Alumni';
+        const safeLga = member.lga || 'Abia';
+        const rawPhone = member.phone ? member.phone.replace(/[^0-9+]/g, '') : '';
+        const social = member.social || {};
+        const photoSrc = member.photo || social.photo || '';
+        const avatarContent = photoSrc
+          ? `<img src="${photoSrc}" alt="${safeName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+          : initials;
+
+        const whatsappUrl = rawPhone ? `https://wa.me/${rawPhone.replace('+', '')}?text=${encodeURIComponent('Hello! I saw your profile on Abia TechRise Remembrance Villa.')}` : '';
+        const isVerified = member.securityPin && member.securityPin !== '3030';
+
+        // Build social icons
+        const socialIconsHtml = [
+          social.linkedin ? `<a href="${social.linkedin}" target="_blank" class="social-icon-link" title="LinkedIn">in</a>` : '',
+          social.facebook ? `<a href="${social.facebook}" target="_blank" class="social-icon-link" title="Facebook">📍˜</a>` : '',
+          social.github ? `<a href="${social.github}" target="_blank" class="social-icon-link" title="GitHub">ðŸ™</a>` : '',
+          social.twitter ? `<a href="${social.twitter}" target="_blank" class="social-icon-link" title="Twitter/X">ð•</a>` : '',
+          social.instagram ? `<a href="${social.instagram}" target="_blank" class="social-icon-link" title="Instagram">📍¸</a>` : '',
+          social.website ? `<a href="${social.website}" target="_blank" class="social-icon-link" title="Website">🌐</a>` : ''
+        ].filter(Boolean).join('');
+
+        return `
+          <div class="resident-card" id="card-${member.id}">
+            <div class="card-top">
+              <div class="avatar-node">${avatarContent}</div>
+              <div class="card-meta">
+                <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
+                  <div class="resident-name" title="${safeName}">${safeName}</div>
+                  ${isVerified ? '<span class="verified-badge">✓ Verified</span>' : ''}
+                </div>
+                <div class="pills-wrapper">
+                  <span class="profession-pill">${safeProf}</span>
+                  <span class="lga-pill">📍 ${safeLga}</span>
+                </div>
+              </div>
+            </div>
+
+            ${social.bio ? `<p style="color:#8B93A7; font-size:0.82rem; margin:0.5rem 0 0 0; line-height:1.5;">${social.bio}</p>` : ''}
+            ${socialIconsHtml ? `<div class="social-icons-row">${socialIconsHtml}</div>` : ''}
+
+            <div class="card-links">
+              ${rawPhone ? `
+                <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" class="card-link whatsapp-link" title="Chat on WhatsApp">
+                  💬 Chat on WhatsApp (${member.phone})
+                </a>
+                <a href="tel:${member.phone}" class="card-link" title="Call Resident">
+                  📍ž Call Direct
+                </a>
+              ` : ''}
+
+              <button onclick="openSendMessageModal('${member.id}', '${safeName.replace(/'/g, "\\'")}')" style="background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; text-align: center; margin-top: 4px;">
+                ✉️ Send Private Message
+              </button>
+
+              <button class="my-account-btn" onclick="openMyAccount('${member.id}', '${safeName.replace(/'/g, "\\'")}')">👤 My Account</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 🎲 "Meet a Villager" Random Spotlight Generator
+    function triggerRandomSpotlight() {
+      if (membersList.length === 0) return;
+      const randomIndex = Math.floor(Math.random() * membersList.length);
+      const targetMember = membersList[randomIndex];
+
+      document.querySelectorAll('.resident-card').forEach(c => {
+        c.classList.remove('spotlight-active');
+        const badge = c.querySelector('.spotlight-badge');
+        if (badge) badge.remove();
+      });
+
+      const cardEl = document.getElementById(`card-${targetMember.id}`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardEl.classList.add('spotlight-active');
+        
+        const badge = document.createElement('div');
+        badge.className = 'spotlight-badge';
+        badge.textContent = '🌐Ÿ Today\'s Spotlight Resident!';
+        cardEl.prepend(badge);
+
+        setTimeout(() => {
+          cardEl.classList.remove('spotlight-active');
+        }, 5000);
+      }
+    }
+    window.triggerRandomSpotlight = triggerRandomSpotlight;
+
+    // Send Message Modal
+    function openSendMessageModal(id, name) {
+      document.getElementById('recipient-id-input').value = id;
+      document.getElementById('recipient-name-display').textContent = name;
+      document.getElementById('send-msg-modal').style.display = 'flex';
+    }
+    window.openSendMessageModal = openSendMessageModal;
+
+    function closeSendMessageModal() {
+      document.getElementById('send-msg-modal').style.display = 'none';
+    }
+    window.closeSendMessageModal = closeSendMessageModal;
+
+    // Private Message Submission
+    document.getElementById('private-msg-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipientId = document.getElementById('recipient-id-input').value;
+      const name = document.getElementById('sender-name').value.trim();
+      const track = document.getElementById('sender-track').value.trim();
+      const lga = document.getElementById('sender-lga').value.trim();
+      const text = document.getElementById('sender-text').value.trim();
+
+      const btn = document.getElementById('send-msg-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const msgObj = {
+        recipientId,
+        senderName: name,
+        senderTrack: track,
+        senderLga: lga,
+        text,
+        createdAt: new Date().toISOString()
+      };
+
+      // Save locally
+      try {
+        const storedMsgs = JSON.parse(localStorage.getItem('techrise_messages') || '[]');
+        storedMsgs.push(msgObj);
+        localStorage.setItem('techrise_messages', JSON.stringify(storedMsgs));
+      } catch(err) {}
+
+      try {
+        if (db) {
+          await db.collection('messages').add(msgObj);
+        }
+        alert('✉️ Private message sent successfully!');
+        closeSendMessageModal();
+        document.getElementById('private-msg-form').reset();
+      } catch (err) {
+        alert('✉️ Private message sent successfully!');
+        closeSendMessageModal();
+        document.getElementById('private-msg-form').reset();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✉️ Send Message';
+      }
+    });
+
+    // Inbox Modal
+    function openInboxModal() {
+      document.getElementById('inbox-modal').style.display = 'flex';
+      document.getElementById('inbox-login-panel').style.display = 'block';
+      document.getElementById('inbox-content-panel').style.display = 'none';
+      document.getElementById('inbox-error').style.display = 'none';
+
+      // Populate resident dropdown
+      const selectEl = document.getElementById('inbox-member-select');
+      const sorted = membersList.slice().sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      selectEl.innerHTML = '<option value="">-- Select Your Resident Profile --</option>' +
+        sorted.map(m => `<option value="${m.id}">${m.fullName} (${m.profession})</option>`).join('');
+    }
+    window.openInboxModal = openInboxModal;
+
+    function closeInboxModal() {
+      document.getElementById('inbox-modal').style.display = 'none';
+    }
+    window.closeInboxModal = closeInboxModal;
+
+    async function unlockInbox() {
+      const selectedId = document.getElementById('inbox-member-select').value;
+      const pin = document.getElementById('inbox-pin-input').value.trim();
+      const errEl = document.getElementById('inbox-error');
+      errEl.style.display = 'none';
+
+      if (!selectedId) {
+        errEl.textContent = 'âŒ Please select your resident profile name.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!pin) {
+        errEl.textContent = 'âŒ Please enter your 4-digit PIN.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const member = membersList.find(m => m.id === selectedId);
+      if (!member) {
+        errEl.textContent = 'âŒ Resident profile not found.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const expectedPin = member.securityPin || '3030';
+      if (pin !== expectedPin) {
+        errEl.textContent = 'âŒ Incorrect PIN for selected resident profile.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('inbox-login-panel').style.display = 'none';
+      document.getElementById('inbox-content-panel').style.display = 'block';
+      document.getElementById('inbox-recipient-heading').textContent = `📩 Messages for ${member.fullName}`;
+
+      const listEl = document.getElementById('inbox-messages-list');
+      listEl.innerHTML = '<p style="color:#8B93A7;">Loading your private messages...</p>';
+
+      let messages = [];
+
+      // 1. Fetch from LocalStorage
+      try {
+        const storedMsgs = JSON.parse(localStorage.getItem('techrise_messages') || '[]');
+        messages = storedMsgs.filter(m => m.recipientId === selectedId);
+      } catch(e) {}
+
+      // 2. Fetch from Firestore
+      try {
+        if (db) {
+          const snapshot = await db.collection('messages').where('recipientId', '==', selectedId).orderBy('createdAt', 'desc').limit(30).get();
+          const firestoreMsgs = snapshot.docs.map(doc => doc.data());
+          // Merge unique
+          const combined = [...firestoreMsgs, ...messages];
+          const uniqueMap = new Map();
+          combined.forEach(m => {
+            const key = (m.createdAt || '') + (m.senderName || '') + (m.text || '');
+            if (!uniqueMap.has(key)) uniqueMap.set(key, m);
+          });
+          messages = Array.from(uniqueMap.values());
+        }
+      } catch (err) {
+        console.warn('Firestore inbox query fallback:', err);
+      }
+
+      if (messages.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:2rem; background:rgba(255,255,255,0.03); border-radius:8px;"><p style="color:#8B93A7;">No private messages received yet for ${member.fullName}.</p></div>`;
+        return;
+      }
+
+      listEl.innerHTML = messages.map(data => {
+        const dateStr = data.createdAt ? new Date(data.createdAt).toLocaleString() : '';
+        return `
+          <div style="background: rgba(255,255,255,0.04); padding: 1rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.25);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem; flex-wrap:wrap; gap:0.5rem;">
+              <strong style="color: #F2B705;">👤 ${data.senderName || 'Anonymous Villager'}</strong>
+              <span style="font-size: 0.75rem; color: #8B93A7;">${data.senderTrack ? '💻 ' + data.senderTrack + ' � ' : ''}${data.senderLga ? '📍 ' + data.senderLga : ''}</span>
+            </div>
+            <p style="font-size: 0.92rem; color: #EAEDF5; line-height:1.5; margin-bottom:0.4rem;">${data.text}</p>
+            <div style="font-size: 0.72rem; color: #8B93A7; text-align:right;">${dateStr}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    window.unlockInbox = unlockInbox;
+
+    // Secret Admin Routing
+    const ADMIN_SECRET = "3030";
+    let isAdminAuthenticated = false;
+
+    function checkAdminUrlRoute() {
+      const isPathAdmin = window.location.pathname.endsWith('/admin') || window.location.pathname.endsWith('/admin.html');
+      const isQueryAdmin = new URLSearchParams(window.location.search).has('admin');
+      const isHashAdmin = window.location.hash === '#admin';
+
+      if (isPathAdmin || isQueryAdmin || isHashAdmin) {
+        document.getElementById('admin-login-btn').style.display = 'inline-flex';
+        openAdminModal();
+      }
+    }
+
+    // Secret Keyboard Shortcut: Ctrl + Shift + A
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        document.getElementById('admin-login-btn').style.display = 'inline-flex';
+        openAdminModal();
+      }
+    });
+
+    // Secret Logo Triple-click
+    let logoClicks = 0;
+    document.getElementById('brand-logo-trigger').addEventListener('click', (e) => {
+      logoClicks++;
+      if (logoClicks >= 3) {
+        logoClicks = 0;
+        document.getElementById('admin-login-btn').style.display = 'inline-flex';
+        openAdminModal();
+      }
+      setTimeout(() => { logoClicks = 0; }, 1200);
+    });
+
+    function openAdminModal() {
+      document.getElementById("admin-modal").style.display = "flex";
+      document.getElementById("admin-key-input").value = "";
+      document.getElementById("admin-key-error").style.display = "none";
+      if (isAdminAuthenticated) {
+        document.getElementById("admin-login-panel").style.display = "none";
+        document.getElementById("admin-control-panel").style.display = "block";
+      } else {
+        document.getElementById("admin-login-panel").style.display = "block";
+        document.getElementById("admin-control-panel").style.display = "none";
+      }
+    }
+    window.openAdminModal = openAdminModal;
+
+    function closeAdminModal() {
+      document.getElementById("admin-modal").style.display = "none";
+    }
+    window.closeAdminModal = closeAdminModal;
+
+    function verifyAdminKey() {
+      const key = document.getElementById("admin-key-input").value.trim();
+      if (key === ADMIN_SECRET) {
+        isAdminAuthenticated = true;
+        document.getElementById("admin-login-panel").style.display = "none";
+        document.getElementById("admin-control-panel").style.display = "block";
+        document.getElementById("admin-key-error").style.display = "none";
+        document.getElementById("admin-login-btn").textContent = "👑 Master Admin ✓";
+      } else {
+        document.getElementById("admin-key-error").style.display = "block";
+      }
+    }
+    window.verifyAdminKey = verifyAdminKey;
+
+    // ===== ADMIN DELETE MEMBER =====
+    function adminDeleteMember() {
+      if (!isAdminAuthenticated) return;
+      const id = document.getElementById('admin-delete-id').value.trim();
+      const msgEl = document.getElementById('admin-delete-msg');
+      if (!id) { msgEl.style.display='block'; msgEl.style.color='#FCA5A5'; msgEl.textContent='Please enter a member ID.'; return; }
+      // Remove from in-memory list
+      const idx = membersList.findIndex(m => m.id === id);
+      if (idx === -1) { msgEl.style.display='block'; msgEl.style.color='#FCA5A5'; msgEl.textContent='Member ID not found.'; return; }
+      membersList.splice(idx, 1);
+      renderDirectory();
+      // Remove from localStorage if present
+      try {
+        const stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+        const newStored = stored.filter(m => m.id !== id);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newStored));
+      } catch(e) {}
+      msgEl.style.display='block'; msgEl.style.color='#6EE7B7'; msgEl.textContent='✓ Member ' + id + ' deleted.';
+      document.getElementById('admin-delete-id').value = '';
+    }
+    window.adminDeleteMember = adminDeleteMember;
+
+    function adminLogout() {
+      isAdminAuthenticated = false;
+      closeAdminModal();
+    }
+    window.adminLogout = adminLogout;
+
+    function postAnnouncement() {
+      const text = document.getElementById("announcement-input").value.trim();
+      if (!text) return;
+      document.getElementById("announcement-text").textContent = "📢 " + text;
+      document.getElementById("announcement-banner").style.display = "block";
+      localStorage.setItem("techrise_announcement", text);
+      closeAdminModal();
+    }
+    window.postAnnouncement = postAnnouncement;
+
+    function clearAnnouncement() {
+      document.getElementById("announcement-banner").style.display = "none";
+      localStorage.removeItem("techrise_announcement");
+    }
+    window.clearAnnouncement = clearAnnouncement;
+
+    function exportDirectory(format) {
+      const realMembers = membersList;
+      let content, filename, mimeType;
+
+      if (format === 'json') {
+        content = JSON.stringify(realMembers, null, 2);
+        filename = 'techrise3-village-directory.json';
+        mimeType = 'application/json';
+      } else {
+        const headers = ['id','fullName','profession','lga','phone'];
+        const rows = realMembers.map(m => headers.map(h => `"${(m[h] || '').replace(/"/g, '""')}"`).join(','));
+        content = [headers.join(','), ...rows].join('\n');
+        filename = 'techrise3-village-directory.csv';
+        mimeType = 'text/csv';
+      }
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    window.exportDirectory = exportDirectory;
+
+    // ============================================================
+    // TRACK ABBREVIATION MAP (ID card abbreviation → full track name)
+    // ============================================================
+    const TRACK_ABBREV_MAP = {
+      'aim': 'AI & Machine Learning',
+      'cad': 'Computer Aided Design and Manufacturing',
+      'art': 'Creative Arts: 2D & 3D Animation',
+      'cyb': 'Cybersecurity',
+      'pyt': 'Enterprise Python: Backend Development',
+      'jsc': 'Fullstack Web Development with JavaScript',
+      'uix': 'UI/UX Design',
+      'uux': 'UI/UX Design'
+    };
+
+    /**
+     * Validates a TechRise ID card against a member's track.
+     * Pattern: tr3/std/<abbrev>/<number>
+     * Returns { valid: bool, message: string, detectedTrack: string|null }
+     */
+    function validateIdCard(idString, memberProfession) {
+      const cleaned = idString.trim().toLowerCase();
+      const parts = cleaned.split('/');
+      if (parts.length !== 4) return { valid: false, message: 'Invalid format. Expected: tr3/std/track/number (e.g. tr3/std/pyt/066)' };
+      const [prefix, role, abbrev, numPart] = parts;
+      if (prefix !== 'tr3') return { valid: false, message: 'ID must start with tr3 (TechRise Cohort 3).' };
+      if (role !== 'std') return { valid: false, message: 'ID must contain std (student) as second part.' };
+      if (!/^[0-9]{3}$/.test(numPart)) return { valid: false, message: 'ID must end with a 3-digit number (e.g. 042).' };
+      const expectedTrack = TRACK_ABBREV_MAP[abbrev];
+      if (!expectedTrack) return { valid: false, message: `Unknown track abbreviation "${abbrev}". Valid: aim, cad, art, cyb, pyt, jsc, uix` };
+      if (expectedTrack !== memberProfession) {
+        return { valid: false, message: `Track mismatch: "${abbrev}" maps to "${expectedTrack}" but your profile shows "${memberProfession}".` };
+      }
+      return { valid: true, message: 'ID verified!', detectedTrack: expectedTrack };
+    }
+
+    // ============================================================
+    // MY ACCOUNT FLOW
+    // ============================================================
+    let currentVerifyMemberId = null;
+    let currentVerifyMemberName = null;
+    let confirmationResult = null; // for phone OTP
+    let pinMode = 'create'; // 'create' or 'login'
+    let pinBuffer = '';
+    let pinFirstEntry = '';
+
+    function openMyAccount(memberId, memberName) {
+      currentVerifyMemberId = memberId;
+      currentVerifyMemberName = memberName;
+      const member = membersList.find(m => m.id === memberId);
+      if (!member) return;
+
+      // If member already has a personal PIN set (not default 3030), ask for PIN to open edit
+      if (member.securityPin && member.securityPin !== '3030' && member.verified) {
+        // Already verified before — ask PIN to enter edit
+        openPinModal('login');
+        return;
+      }
+      // Otherwise open verification flow
+      openVerifyModal();
+    }
+    window.openMyAccount = openMyAccount;
+
+    function openVerifyModal() {
+      document.getElementById('verify-member-name').textContent = currentVerifyMemberName;
+      document.getElementById('id-card-input').value = '';
+      document.getElementById('id-verify-error').style.display = 'none';
+      document.getElementById('verify-modal').style.display = 'flex';
+    }
+
+    function closeVerifyModal() {
+      document.getElementById('verify-modal').style.display = 'none';
+    }
+    window.closeVerifyModal = closeVerifyModal;
+
+    // --- Verify by ID Card ---
+    function verifyByIdCard() {
+      const idInput = document.getElementById('id-card-input').value.trim();
+      const errEl = document.getElementById('id-verify-error');
+      const member = membersList.find(m => m.id === currentVerifyMemberId);
+      if (!member) return;
+
+      const result = validateIdCard(idInput, member.profession);
+      if (!result.valid) {
+        errEl.textContent = 'âŒ ' + result.message;
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      // Mark verified in memory
+      member.verified = true;
+      closeVerifyModal();
+      // Now decide: create PIN if none, or open edit if PIN exists
+      if (!member.securityPin || member.securityPin === '3030') {
+        openPinModal('create');
+      } else {
+        openPinModal('login');
+      }
+    }
+    window.verifyByIdCard = verifyByIdCard;
+
+    // ============================================================
+    // PIN MODAL
+    // ============================================================
+    function openPinModal(mode) {
+      pinMode = mode;
+      pinBuffer = '';
+      pinFirstEntry = '';
+      updatePinDots();
+      const title = document.getElementById('pin-modal-title');
+      const sub = document.getElementById('pin-modal-subtitle');
+      document.getElementById('pin-error').style.display = 'none';
+      if (mode === 'create') {
+        title.textContent = 'Create Your 4-Digit PIN';
+        sub.textContent = 'Choose a PIN that only you will remember. You\'ll use it to edit your profile.';
+      } else {
+        title.textContent = 'Enter Your PIN';
+        sub.textContent = 'Enter your 4-digit PIN to access your profile editor.';
+      }
+      document.getElementById('pin-modal').style.display = 'flex';
+    }
+
+    function closePinModal() {
+      document.getElementById('pin-modal').style.display = 'none';
+      pinBuffer = '';
+      pinFirstEntry = '';
+    }
+    window.closePinModal = closePinModal;
+
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('pd' + i).classList.toggle('filled', i < pinBuffer.length);
+      }
+    }
+
+    function pinPad(key) {
+      const errEl = document.getElementById('pin-error');
+      errEl.style.display = 'none';
+      if (key === 'clear') { pinBuffer = ''; updatePinDots(); return; }
+      if (key === 'back') { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); return; }
+      if (pinBuffer.length >= 4) return;
+      pinBuffer += String(key);
+      updatePinDots();
+
+      if (pinBuffer.length === 4) {
+        setTimeout(() => processPinEntry(), 200);
+      }
+    }
+    window.pinPad = pinPad;
+
+    function processPinEntry() {
+      const errEl = document.getElementById('pin-error');
+      const member = membersList.find(m => m.id === currentVerifyMemberId);
+      if (!member) return;
+
+      if (pinMode === 'login') {
+        // Check PIN
+        if (pinBuffer === member.securityPin) {
+          closePinModal();
+          openEditModal(member);
+        } else {
+          errEl.textContent = 'âŒ Incorrect PIN. Try again.';
+          errEl.style.display = 'block';
+          pinBuffer = '';
+          updatePinDots();
+        }
+        return;
+      }
+
+      // CREATE MODE: two-step confirmation
+      if (!pinFirstEntry) {
+        pinFirstEntry = pinBuffer;
+        pinBuffer = '';
+        updatePinDots();
+        document.getElementById('pin-modal-title').textContent = 'Confirm Your PIN';
+        document.getElementById('pin-modal-subtitle').textContent = 'Re-enter the same PIN to confirm.';
+      } else {
+        if (pinBuffer !== pinFirstEntry) {
+          errEl.textContent = 'âŒ PINs do not match. Start again.';
+          errEl.style.display = 'block';
+          pinBuffer = ''; pinFirstEntry = '';
+          updatePinDots();
+          document.getElementById('pin-modal-title').textContent = 'Create Your 4-Digit PIN';
+          document.getElementById('pin-modal-subtitle').textContent = 'Choose a PIN that only you will remember.';
+          return;
+        }
+        // Save PIN
+        member.securityPin = pinBuffer;
+        member.verified = true;
+        // Persist to localStorage
+        persistMemberLocally(member);
+        closePinModal();
+        openEditModal(member);
+      }
+    }
+
+    // ============================================================
+    // EDIT PROFILE MODAL
+    // ============================================================
+    function openEditModal(member) {
+      document.getElementById('edit-member-id').value = member.id;
+      const social = member.social || {};
+      document.getElementById('edit-photo-url').value = member.photo || social.photo || '';
+      document.getElementById('edit-photo-file').value = '';
+      document.getElementById('edit-phone').value = member.phone || '';
+      document.getElementById('edit-linkedin').value = social.linkedin || '';
+      document.getElementById('edit-facebook').value = social.facebook || '';
+      document.getElementById('edit-twitter').value = social.twitter || '';
+      document.getElementById('edit-instagram').value = social.instagram || '';
+      document.getElementById('edit-github').value = social.github || '';
+      document.getElementById('edit-website').value = social.website || '';
+      document.getElementById('edit-bio').value = social.bio || '';
+      document.getElementById('edit-save-msg').style.display = 'none';
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+    window.closeEditModal = closeEditModal;
+
+    async function saveProfileEdits() {
+      const memberId = document.getElementById('edit-member-id').value;
+      const member = membersList.find(m => m.id === memberId);
+      if (!member) return;
+      const msgEl = document.getElementById('edit-save-msg');
+
+      let photoVal = document.getElementById('edit-photo-url').value.trim();
+      const fileInput = document.getElementById('edit-photo-file');
+
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        try {
+          photoVal = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(fileInput.files[0]);
+          });
+        } catch(e) {}
+      }
+
+      member.photo = photoVal;
+      member.phone = document.getElementById('edit-phone').value.trim();
+      member.social = {
+        ...(member.social || {}),
+        photo: photoVal,
+        linkedin: document.getElementById('edit-linkedin').value.trim(),
+        facebook: document.getElementById('edit-facebook').value.trim(),
+        twitter: document.getElementById('edit-twitter').value.trim(),
+        instagram: document.getElementById('edit-instagram').value.trim(),
+        github: document.getElementById('edit-github').value.trim(),
+        website: document.getElementById('edit-website').value.trim(),
+        bio: document.getElementById('edit-bio').value.trim()
+      };
+
+      // Increment edited count
+      const edited = parseInt(document.getElementById('stat-edited').textContent || '0') + 1;
+      document.getElementById('stat-edited').textContent = edited;
+
+      // Persist locally
+      persistMemberLocally(member);
+
+      // Re-render directory card
+      renderDirectory();
+
+      msgEl.style.color = '#6EE7B7';
+      msgEl.textContent = '✅ Profile saved! Your card and picture have been updated.';
+      msgEl.style.display = 'block';
+
+      setTimeout(() => closeEditModal(), 1800);
+    }
+    window.saveProfileEdits = saveProfileEdits;
+
+    // ============================================================
+    // PERSISTENCE HELPER (FIRESTORE CLOUD + LOCAL CACHE)
+    // ============================================================
+    async function persistMemberLocally(member) {
+      // 1. Update in-memory array
+      const listIdx = membersList.findIndex(m => m.id === member.id);
+      if (listIdx !== -1) membersList[listIdx] = member;
+
+      // 2. Save to browser localStorage as fallback cache
+      try {
+        let stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+        const idx = stored.findIndex(m => m.id === member.id);
+        if (idx !== -1) stored[idx] = { ...stored[idx], ...member };
+        else stored.push(member);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stored));
+      } catch(e) {}
+
+      // 3. Save to Firebase Firestore Cloud Database (PERMANENT)
+      if (db) {
+        try {
+          await db.collection('members').doc(member.id).set(member, { merge: true });
+          console.log(`✅ Cloud Persisted: Resident ${member.id} (${member.fullName}) updated in Firestore.`);
+        } catch(e) {
+          console.error('Firestore cloud save error:', e);
+        }
+      }
+    }
+
+    // Canvas Particle Constellation Animation
+    function initHeroCanvas() {
+      const canvas = document.getElementById("hero-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let width = (canvas.width = canvas.parentElement.offsetWidth);
+      let height = (canvas.height = canvas.parentElement.offsetHeight);
+
+      window.addEventListener("resize", () => {
+        if (!canvas.parentElement) return;
+        width = canvas.width = canvas.parentElement.offsetWidth;
+        height = canvas.height = canvas.parentElement.offsetHeight;
+      });
+
+      const particles = [];
+      for (let i = 0; i < 45; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          radius: Math.random() * 2 + 1
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 130) {
+              const alpha = (1 - dist / 130) * 0.15;
+              ctx.strokeStyle = `rgba(242, 183, 5, ${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        particles.forEach((p) => {
+          ctx.fillStyle = "#F2B705";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+        });
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    // ============================================================
+    // VILLAGE HUT (COMMUNITY GROUP CHAT & TRENDING TOPICS)
+    // ============================================================
+    let villageHutPosts = [];
+
+    async function loadVillageHutPosts() {
+      const feedEl = document.getElementById('village-hut-feed');
+      const countEl = document.getElementById('hut-post-count');
+      if (!feedEl) return;
+
+      // Populate author dropdown if empty
+      const authorSelect = document.getElementById('hut-author-select');
+      if (authorSelect && (authorSelect.options.length <= 1) && membersList.length > 0) {
+        const sorted = membersList.slice().sort((a,b) => (a.fullName || '').localeCompare(b.fullName || ''));
+        authorSelect.innerHTML = '<option value="">-- Select Your Name --</option>' +
+          sorted.map(m => `<option value="${m.id}">${m.fullName} (${m.profession})</option>`).join('');
+      }
+
+      // 1. Fetch from Firestore
+      try {
+        if (db) {
+          const snapshot = await db.collection('village_hut_posts').orderBy('createdAt', 'desc').limit(50).get();
+          if (!snapshot.empty) {
+            villageHutPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderVillageHutFeed();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore village hut fetch error:', err);
+      }
+
+      // Fallback to localStorage
+      try {
+        const stored = JSON.parse(localStorage.getItem('techrise_village_hut') || '[]');
+        villageHutPosts = stored;
+      } catch (e) {
+        villageHutPosts = [];
+      }
+      renderVillageHutFeed();
+    }
+
+    function renderVillageHutFeed() {
+      const feedEl = document.getElementById('village-hut-feed');
+      const countEl = document.getElementById('hut-post-count');
+      if (!feedEl) return;
+
+      countEl.textContent = villageHutPosts.length;
+
+      if (villageHutPosts.length === 0) {
+        feedEl.innerHTML = `
+          <div style="text-align: center; padding: 3rem; background: var(--panel-bg); border-radius: var(--radius-md); border: 1px solid var(--hairline-border);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛖</div>
+            <h4 style="color: var(--text-main); margin-bottom: 0.3rem;">Welcome to The Village Hut!</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Be the first verified resident to post a topic for the cohort.</p>
+          </div>
+        `;
+        return;
+      }
+
+      feedEl.innerHTML = villageHutPosts.map(post => {
+        const initials = post.authorName ? post.authorName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'TR';
+        const photoSrc = post.authorPhoto || '';
+        const avatarHtml = photoSrc
+          ? `<img src="${photoSrc}" alt="${post.authorName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+          : initials;
+
+        const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Just now';
+        const likes = post.likes || 0;
+
+        return `
+          <div style="background: var(--panel-bg); border: 1px solid var(--hairline-border); border-radius: var(--radius-md); padding: 1.25rem; transition: all 0.2s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="avatar-node" style="width: 44px; height: 44px; font-size: 0.95rem;">${avatarHtml}</div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">${post.authorName}</strong>
+                    <span class="verified-badge">✓ Verified</span>
+                  </div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">
+                    ${post.authorTrack ? post.authorTrack + ' � ' : ''}📍 ${post.authorLga || 'Abia'}
+                  </div>
+                </div>
+              </div>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-gold); background: rgba(242, 183, 5, 0.1); padding: 3px 10px; border-radius: 50px; border: 1px solid rgba(242, 183, 5, 0.25);">
+                ${post.topic || '🔥 Trending Topic'}
+              </span>
+            </div>
+
+            <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.85rem; white-space: pre-wrap;">${post.text}</p>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline-border); padding-top: 0.65rem; font-size: 0.78rem; color: var(--text-muted);">
+              <span>🕒 ${dateStr}</span>
+              <button onclick="likeVillagePost('${post.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid var(--hairline-border); color: var(--accent-gold); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: var(--font-mono); display: flex; align-items: center; gap: 0.3rem;">
+                â¤ï¸ <span id="like-count-${post.id}">${likes}</span> Likes
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handlePostToVillageHut(e) {
+      e.preventDefault();
+      const authorId = document.getElementById('hut-author-select').value;
+      const topic = document.getElementById('hut-topic-select').value;
+      const text = document.getElementById('hut-post-text').value.trim();
+      const pin = document.getElementById('hut-pin-input').value.trim();
+      const statusEl = document.getElementById('hut-post-status');
+      const submitBtn = document.getElementById('hut-submit-btn');
+
+      statusEl.style.display = 'none';
+
+      if (!authorId) {
+        statusEl.style.color = '#EF4444';
+        statusEl.textContent = 'âŒ Please select your resident profile.';
+        statusEl.style.display = 'block';
+        return;
+      }
+      if (!text) {
+        statusEl.style.color = '#EF4444';
+        statusEl.textContent = 'âŒ Please enter discussion text.';
+        statusEl.style.display = 'block';
+        return;
+      }
+
+      const member = membersList.find(m => m.id === authorId);
+      if (!member) {
+        statusEl.style.color = '#EF4444';
+        statusEl.textContent = 'âŒ Resident profile not found.';
+        statusEl.style.display = 'block';
+        return;
+      }
+
+      const expectedPin = member.securityPin || '3030';
+      if (pin !== expectedPin) {
+        statusEl.style.color = '#EF4444';
+        statusEl.textContent = 'âŒ Incorrect PIN. Verification failed.';
+        statusEl.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Posting...';
+
+      const postObj = {
+        authorId: member.id,
+        authorName: member.fullName,
+        authorTrack: member.profession,
+        authorLga: member.lga,
+        authorPhoto: member.photo || (member.social && member.social.photo) || '',
+        topic,
+        text,
+        likes: 0,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        if (db) {
+          const docRef = await db.collection('village_hut_posts').add(postObj);
+          postObj.id = docRef.id;
+        } else {
+          postObj.id = 'hut-' + Date.now();
+        }
+
+        villageHutPosts.unshift(postObj);
+        try {
+          localStorage.setItem('techrise_village_hut', JSON.stringify(villageHutPosts));
+        } catch(e) {}
+
+        renderVillageHutFeed();
+        document.getElementById('village-hut-form').reset();
+        statusEl.style.color = '#6EE7B7';
+        statusEl.textContent = '🎉 Post published to Village Hut!';
+        statusEl.style.display = 'block';
+      } catch (err) {
+        console.error('Error posting to Village Hut:', err);
+        statusEl.style.color = '#EF4444';
+        statusEl.textContent = 'âŒ Error publishing post. Try again.';
+        statusEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Post 🛖';
+      }
+    }
+
+    async function likeVillagePost(postId) {
+      const post = villageHutPosts.find(p => p.id === postId);
+      if (!post) return;
+      post.likes = (post.likes || 0) + 1;
+      const countEl = document.getElementById(`like-count-${postId}`);
+      if (countEl) countEl.textContent = post.likes;
+
+      if (db && !postId.startsWith('hut-')) {
+        try {
+          await db.collection('village_hut_posts').doc(postId).update({
+            likes: firebase.firestore.FieldValue.increment(1)
+          });
+        } catch(e) {}
+      }
+    }
+    window.loadVillageHutPosts = loadVillageHutPosts;
+    window.handlePostToVillageHut = handlePostToVillageHut;
+    window.likeVillagePost = likeVillagePost;
+
+    // Mobile Navigation Menu Toggle
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobile-nav-drawer');
+      if (drawer) {
+        const isHidden = drawer.style.display === 'none' || !drawer.style.display;
+        drawer.style.display = isHidden ? 'flex' : 'none';
+      }
+    }
+    window.toggleMobileMenu = toggleMobileMenu;
+
+    // DOM Ready Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      initHeroCanvas();
+      recordVisitor();
+      loadMembers();
+      loadVillageHutPosts();
+      checkAdminUrlRoute();
+
+      // Search & Filters
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        // Auto-reset LGA filter to 'All' when user types a search query to prevent hidden results
+        if (searchQuery.trim().length > 0 && currentLgaFilter !== "All") {
+          currentLgaFilter = "All";
+          const lgaSelect = document.getElementById("lga-filter");
+          if (lgaSelect) lgaSelect.value = "All";
+        }
+        renderDirectory();
+      });
+
+      document.getElementById("lga-filter").addEventListener("change", (e) => {
+        currentLgaFilter = e.target.value;
+        renderDirectory();
+      });
+
+      document.getElementById("filter-chips").addEventListener("click", (e) => {
+        if (e.target.classList.contains("chip")) {
+          document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+          e.target.classList.add("active");
+          currentFilter = e.target.getAttribute("data-category");
+          renderDirectory();
+        }
+      });
+    });
+  </script>
+  <!-- Floating Side Scroll Navigation Widget -->
+  <div class="floating-scroll-widget" id="floating-scroll-widget">
+    <a href="#" class="floating-scroll-btn" title="Scroll to Top" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">⬆</a>
+    <a href="#directory" class="floating-scroll-btn" title="Search Directory" onclick="document.getElementById('search-input').focus();">🔍</a>
+    <a href="#join" class="floating-scroll-btn" title="Jump to Bottom" onclick="window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); return false;">⬇</a>
+  </div>
+
+</body>
+</html>

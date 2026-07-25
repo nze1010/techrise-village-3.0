@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Members collection: Everyone can read and update member profiles
+    match /members/{memberId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Private Messaging collection: Everyone can send and read messages
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+    
+    // Default fallback
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
