@@ -1577,72 +1577,68 @@
       document.getElementById('stat-visits').textContent = visits;
     }
 
-    // Load Data from Firestore Primary (with members.json fallback)
+    // Load Data from Firestore Primary (with members.json fail-safe baseline)
     async function loadMembers() {
-      try {
-        if (db) {
-          console.log("Fetching directory from Firestore...");
-          const snapshot = await db.collection('members').get();
-          
-          if (!snapshot.empty) {
-            const firestoreMembers = [];
-            snapshot.forEach(doc => {
-              firestoreMembers.push(doc.data());
-            });
-            // Sort by numerical ID (m-1, m-2, ...)
-            firestoreMembers.sort((a, b) => {
-              const numA = parseInt((a.id || '').replace('m-', '')) || 0;
-              const numB = parseInt((b.id || '').replace('m-', '')) || 0;
-              return numA - numB;
-            });
-            membersList = firestoreMembers;
-            console.log(`Loaded ${membersList.length} members directly from Firestore cloud database.`);
-            renderDirectory();
-            populateVillageHutAuthors();
-            loadVillageHutPosts();
-            return;
-          } else {
-            console.log("Firestore members collection empty. Initializing migration from members.json...");
-          }
-        }
-      } catch (err) {
-        console.warn("Firestore fetch error, falling back to local JSON:", err);
-      }
-
-      // Fallback: load static members.json and overlay local edits
+      // 1. Load static base directory from members.json so directory is NEVER empty
+      let baseMembers = [];
       try {
         const fileRes = await fetch('./members.json');
         if (fileRes.ok) {
-          const rawMembers = await fileRes.json();
-          // Seed Firestore if db is available
-          if (db) {
-            seedFirestoreFromJSON(rawMembers);
-          }
-          membersList = rawMembers;
+          baseMembers = await fileRes.json();
         }
       } catch (err) {
-        console.warn('members.json read fallback:', err);
+        console.warn('members.json fetch error:', err);
       }
 
-      // Apply any local storage overlays if present
+      // 2. Overlay localStorage cache edits if present
       try {
         const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (localData) {
           const localArray = JSON.parse(localData);
           localArray.forEach(localMember => {
-            const idx = membersList.findIndex(m => m.id === localMember.id);
+            const idx = baseMembers.findIndex(m => m.id === localMember.id);
             if (idx !== -1) {
-              membersList[idx] = { ...membersList[idx], ...localMember };
-              if (db) {
-                db.collection('members').doc(localMember.id).set(membersList[idx], { merge: true }).catch(e => console.error(e));
-              }
+              baseMembers[idx] = { ...baseMembers[idx], ...localMember };
+            } else {
+              baseMembers.unshift(localMember);
             }
           });
         }
       } catch(e) {}
 
+      membersList = baseMembers;
       renderDirectory();
       populateVillageHutAuthors();
+
+      // 3. Sync & merge with Firestore Cloud database
+      if (db) {
+        try {
+          console.log("Syncing directory with Firestore...");
+          const snapshot = await db.collection('members').get();
+          if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+              const cloudMember = doc.data();
+              if (cloudMember && cloudMember.id) {
+                const idx = membersList.findIndex(m => m.id === cloudMember.id);
+                if (idx !== -1) {
+                  membersList[idx] = { ...membersList[idx], ...cloudMember };
+                } else {
+                  membersList.unshift(cloudMember);
+                }
+              }
+            });
+            console.log(`Successfully merged directory. Total residents: ${membersList.length}`);
+            renderDirectory();
+            populateVillageHutAuthors();
+          } else {
+            console.log("Firestore members collection empty. Seeding initial 827 alumni...");
+            seedFirestoreFromJSON(membersList);
+          }
+        } catch(err) {
+          console.warn("Firestore sync warning:", err);
+        }
+      }
+
       loadVillageHutPosts();
     }
 
