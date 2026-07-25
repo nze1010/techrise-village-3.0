@@ -2,29 +2,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Members collection: Public read & create/update, prevent public delete
+    // Members collection: Public read & write
     match /members/{memberId} {
-      allow read: if true;
-      allow create, update: if true;
-      allow delete: if false;
+      allow read, write: if true;
     }
     
-    // Private Messages: Public read & create, prevent public delete
+    // Private Messages: Public read & write
     match /messages/{messageId} {
-      allow read, create: if true;
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
-    // Village Hut Posts: Public read & create, prevent public delete
+    // Village Hut Posts: Public read & write
     match /village_hut_posts/{postId} {
-      allow read, create, update: if true;
-      allow delete: if false;
+      allow read, write: if true;
+    }
+
+    // Telemetry Events: Public read & write
+    match /telemetry_events/{eventId} {
+      allow read, write: if true;
     }
     
-    // Default fallback: allow read/write for app features, disallow delete
+    // Default fallback
     match /{document=**} {
-      allow read, create, update: if true;
-      allow delete: if false;
+      allow read, write: if true;
     }
   }
 }

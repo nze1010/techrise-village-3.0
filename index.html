@@ -3048,7 +3048,7 @@
             const securityPin = document.getElementById("securityPin").value.trim();
             const fileInput = document.getElementById("photo-file");
 
-            const newId = "m-" + (membersList.length + 1000);
+            const newId = "m-" + Date.now();
             let photoUrl = "";
 
             if (fileInput && fileInput.files && fileInput.files[0]) {
