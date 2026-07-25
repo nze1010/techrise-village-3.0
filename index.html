@@ -846,73 +846,129 @@
 
   <!-- Master Admin Modal -->
   <div id="admin-modal" class="modal-overlay">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 680px;">
       <button onclick="closeAdminModal()" class="modal-close">✕</button>
       
       <div id="admin-login-panel">
         <h3 style="color: #F2B705; margin-bottom: 0.5rem;">👑 Master Admin Access</h3>
-        <p style="color: #8B93A7; font-size: 0.875rem; margin-bottom: 1.5rem;">Enter Key to unlock analytics and moderation dashboard.</p>
-        <input type="password" id="admin-key-input" placeholder="Enter Master Admin Key (e.g. 3030)" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
+        <p style="color: #8B93A7; font-size: 0.875rem; margin-bottom: 1.5rem;">Enter Master Admin PIN to unlock live telemetry and moderation dashboard.</p>
+        <input type="password" id="admin-key-input" placeholder="Enter Master Admin Key" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
         <button onclick="verifyAdminKey()" style="width: 100%; padding: 0.75rem; background: #F2B705; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer;">Unlock Admin Dashboard 🔓</button>
-        <p id="admin-key-error" style="color: #EF4444; font-size: 0.8rem; margin-top: 0.5rem; display: none;">Incorrect Admin Key. Try again.</p>
+        <p id="admin-key-error" style="color: #EF4444; font-size: 0.8rem; margin-top: 0.5rem; display: none;">Incorrect Admin Key. Verification failed.</p>
       </div>
 
       <div id="admin-control-panel" style="display: none;">
-        <h3 style="color: #F2B705; margin-bottom: 0.25rem;">👑 Master Admin Dashboard</h3>
-        <p style="color: #1FAE7A; font-size: 0.8rem; margin-bottom: 1.25rem;">✅ Authenticated as Master Admin</p>
-        
-        <!-- Live Analytics Stats Grid -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; text-align: center;">
-          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(242,183,5,0.2);">
-            <div style="font-size: 1.3rem; font-weight: 700; color: #F2B705;" id="stat-visits">0</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">👁️  Page Visits</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid rgba(242,183,5,0.2); padding-bottom: 0.75rem;">
+          <div>
+            <h3 style="color: #F2B705; margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+              👑 Master Admin Command Center
+            </h3>
+            <span style="font-size: 0.75rem; color: #1FAE7A; font-family: var(--font-mono);">
+              🟢 Live Telemetry & Security Monitoring Active
+            </span>
           </div>
-          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.2);">
-            <div style="font-size: 1.3rem; font-weight: 700; color: #1FAE7A;" id="stat-alumni">827</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">👥 Total Alumni</div>
+          <button onclick="adminLogout()" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer;">
+            🔒 Lock Dashboard
+          </button>
+        </div>
+
+        <!-- Telemetry Stat Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(242,183,5,0.2); text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 700; color: #F2B705;" id="admin-stat-visits">0</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">👁️ Total Visits</div>
+            <div style="font-size: 0.65rem; color: #1FAE7A; margin-top: 2px;" id="admin-stat-devices">0📱 / 0💻</div>
           </div>
-          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(56,189,248,0.2);">
-            <div style="font-size: 1.3rem; font-weight: 700; color: #38BDF8;" id="stat-edited">0</div>
-            <div style="font-size: 0.72rem; color: #8B93A7;">✏️  Profiles Edited</div>
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(31,174,122,0.2); text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 700; color: #1FAE7A;" id="admin-stat-alumni">827</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">👥 Registered Alumni</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(56,189,248,0.2); text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8;" id="admin-stat-views">0</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">👆 Profile Clicks</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 8px; border: 1px solid rgba(192,132,252,0.2); text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 700; color: #C084FC;" id="admin-stat-searches">0</div>
+            <div style="font-size: 0.72rem; color: #8B93A7;">🔍 Total Searches</div>
           </div>
         </div>
 
-        <div style="margin-bottom: 1.25rem;">
-          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📢 Post Village Announcement</label>
-          <textarea id="announcement-input" placeholder="Type announcement for all villagers..." style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.9rem; min-height: 70px; resize: vertical; font-family: var(--font-body);"></textarea>
-          <button onclick="postAnnouncement()" style="margin-top: 0.5rem; width: 100%; padding: 0.6rem; background: rgba(242,183,5,0.15); color: #F2B705; border: 1px solid rgba(242,183,5,0.3); border-radius: 8px; cursor: pointer; font-size: 0.9rem;">📢 Post Announcement</button>
-        </div>
+        <!-- Telemetry Breakdown & Top Viewed Profiles -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1.25rem;">
+          <!-- Most Viewed Profiles -->
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.85rem;">
+            <h4 style="font-size: 0.85rem; color: #F2B705; margin-bottom: 0.6rem;">🔥 Most Viewed Profiles</h4>
+            <div id="admin-top-profiles-list" style="font-size: 0.78rem; color: #EAEDF5; display: flex; flex-direction: column; gap: 0.4rem;">
+              <span style="color:#8B93A7;">No profile views recorded yet</span>
+            </div>
+          </div>
 
-        <div style="margin-bottom: 1.25rem;">
-          <label style="color: #CBD5E1; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">📍 Export Directory</label>
-          <div style="display: flex; gap: 0.5rem;">
-            <button onclick="exportDirectory('json')" style="flex: 1; padding: 0.6rem; background: rgba(31,174,122,0.1); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️  Export JSON</button>
-            <button onclick="exportDirectory('csv')" style="flex: 1; padding: 0.6rem; background: rgba(56,189,248,0.1); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">⬇️  Export CSV</button>
+          <!-- Top Search Queries -->
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.85rem;">
+            <h4 style="font-size: 0.85rem; color: #38BDF8; margin-bottom: 0.6rem;">🔎 Popular Search Terms</h4>
+            <div id="admin-top-searches-list" style="font-size: 0.78rem; color: #EAEDF5; display: flex; flex-direction: column; gap: 0.4rem;">
+              <span style="color:#8B93A7;">No search terms logged yet</span>
+            </div>
           </div>
         </div>
 
-        <!-- Admin Delete Member -->
-        <div style="margin-bottom: 1.25rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 0.85rem;">
-          <label style="color: #FCA5A5; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">🗑️ Delete a Member Profile</label>
-          <div style="display: flex; gap: 0.5rem;">
-            <input id="admin-delete-id" placeholder="Member ID (e.g. m-5)" style="flex:1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.85rem;">
-            <button onclick="adminDeleteMember()" style="padding: 0.6rem 1rem; background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Delete</button>
+        <!-- Live Visitor Telemetry & Activity Stream -->
+        <div style="background: rgba(10,15,30,0.8); border: 1px solid rgba(31,174,122,0.3); border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <h4 style="font-size: 0.88rem; color: #1FAE7A; display: flex; align-items: center; gap: 0.4rem;">
+              📡 Live Visitor Activity Telemetry
+            </h4>
+            <span style="font-size: 0.7rem; color: #8B93A7; font-family: var(--font-mono);">Tracks device, OS, browser & clicks</span>
           </div>
-          <p id="admin-delete-msg" style="font-size:0.78rem; margin-top:0.4rem; display:none;"></p>
+          <div id="admin-telemetry-feed" style="max-height: 170px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.76rem; display: flex; flex-direction: column; gap: 0.35rem; padding-right: 0.25rem;">
+            <span style="color:#8B93A7;">Tracking visitor actions in real time...</span>
+          </div>
         </div>
 
-        <!-- Admin Reset Student PIN / Verification -->
-        <div style="margin-bottom: 1.25rem; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 0.85rem;">
-          <label style="color: #93C5FD; font-size: 0.85rem; display: block; margin-bottom: 0.35rem;">🔄 Reset Student Verification &amp; PIN</label>
-          <p style="color: #8B93A7; font-size: 0.75rem; margin-bottom: 0.6rem;">Use this if a student is locked out. This clears their PIN and verification so they can re-verify with their ID card.</p>
-          <div style="display: flex; gap: 0.5rem;">
-            <input id="admin-reset-pin-id" placeholder="Member ID (e.g. m-5)" style="flex:1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.85rem;">
-            <button onclick="adminResetStudentPin()" style="padding: 0.6rem 1rem; background: rgba(56,189,248,0.15); color: #93C5FD; border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Reset</button>
+        <!-- Admin Controls Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1.25rem;">
+          <!-- Post Announcement -->
+          <div style="background: rgba(242,183,5,0.04); border: 1px solid rgba(242,183,5,0.2); border-radius: 8px; padding: 0.85rem;">
+            <label style="color: #F2B705; font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.4rem;">📢 Post Village Announcement</label>
+            <textarea id="announcement-input" placeholder="Type announcement for all villagers..." style="width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 6px; color: #EAEDF5; font-size: 0.82rem; min-height: 55px; resize: vertical; margin-bottom: 0.5rem;"></textarea>
+            <button onclick="postAnnouncement()" style="width: 100%; padding: 0.5rem; background: rgba(242,183,5,0.2); color: #F2B705; border: 1px solid rgba(242,183,5,0.4); border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 700;">📢 Post Announcement</button>
           </div>
-          <p id="admin-reset-pin-msg" style="font-size:0.78rem; margin-top:0.4rem; display:none;"></p>
+
+          <!-- Export Directory -->
+          <div style="background: rgba(31,174,122,0.04); border: 1px solid rgba(31,174,122,0.2); border-radius: 8px; padding: 0.85rem;">
+            <label style="color: #1FAE7A; font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.4rem;">📍 Export Directory Data</label>
+            <p style="color: #8B93A7; font-size: 0.72rem; margin-bottom: 0.6rem;">Download full directory of all 827+ residents.</p>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+              <button onclick="exportDirectory('json')" style="flex: 1; padding: 0.5rem; background: rgba(31,174,122,0.15); color: #1FAE7A; border: 1px solid rgba(31,174,122,0.3); border-radius: 6px; cursor: pointer; font-size: 0.78rem;">⬇️ JSON</button>
+              <button onclick="exportDirectory('csv')" style="flex: 1; padding: 0.5rem; background: rgba(56,189,248,0.15); color: #38BDF8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; cursor: pointer; font-size: 0.78rem;">⬇️ CSV</button>
+            </div>
+          </div>
         </div>
 
-        <button onclick="adminLogout()" style="width: 100%; padding: 0.6rem; background: transparent; color: #8B93A7; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">🔒 Logout Admin</button>
+        <!-- Admin Reset & Delete Controls -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+          <!-- Admin Reset Student PIN -->
+          <div style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 0.85rem;">
+            <label style="color: #93C5FD; font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.2rem;">🔄 Reset Student Verification &amp; PIN</label>
+            <p style="color: #8B93A7; font-size: 0.7rem; margin-bottom: 0.5rem;">Clears PIN &amp; verification so student can re-verify.</p>
+            <div style="display: flex; gap: 0.4rem;">
+              <input id="admin-reset-pin-id" placeholder="Member ID (m-5)" style="flex:1; padding: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.8rem;">
+              <button onclick="adminResetStudentPin()" style="padding: 0.5rem 0.8rem; background: rgba(56,189,248,0.2); color: #93C5FD; border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Reset</button>
+            </div>
+            <p id="admin-reset-pin-msg" style="font-size:0.75rem; margin-top:0.35rem; display:none;"></p>
+          </div>
+
+          <!-- Admin Delete Member -->
+          <div style="background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 0.85rem;">
+            <label style="color: #FCA5A5; font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.2rem;">🗑️ Delete Member Profile</label>
+            <p style="color: #8B93A7; font-size: 0.7rem; margin-bottom: 0.5rem;">Permanently remove profile from directory.</p>
+            <div style="display: flex; gap: 0.4rem;">
+              <input id="admin-delete-id" placeholder="Member ID (m-5)" style="flex:1; padding: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #EAEDF5; font-size: 0.8rem;">
+              <button onclick="adminDeleteMember()" style="padding: 0.5rem 0.8rem; background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Delete</button>
+            </div>
+            <p id="admin-delete-msg" style="font-size:0.75rem; margin-top:0.35rem; display:none;"></p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1109,7 +1165,7 @@
         </div>
         <div class="edit-field">
           <label style="color:#CBD5E1;">Your 4-Digit PIN</label>
-          <input type="password" id="inbox-pin-input" placeholder="Enter 4-Digit Security PIN (default 3030)" maxlength="4" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
+          <input type="password" id="inbox-pin-input" placeholder="Enter your 4-Digit Security PIN" maxlength="4" style="width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(234,237,245,0.12); border-radius: 8px; color: #EAEDF5; font-size: 0.95rem; margin-bottom: 1rem;">
         </div>
         <button onclick="unlockInbox()" style="width: 100%; padding: 0.75rem; background: #1FAE7A; color: #0A0F1E; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Open My Inbox 🔓</button>
         <p id="inbox-error" style="color:#EF4444; font-size:0.8rem; display:none; margin-top:0.5rem;"></p>
@@ -1993,9 +2049,170 @@
     }
     window.unlockInbox = unlockInbox;
 
-    // Secret Admin Routing
-    const ADMIN_SECRET = "tr3_super_admin_2026_x89a";
+    // ============================================================
+    // TELEMETRY & VISITOR ACTIVITY TRACKER (REAL-TIME MONITORING)
+    // ============================================================
+    const ADMIN_KEY_HASH = "f4109b75bcff051b7db6210dcede0c9e0b6e463271b921dd587280bdbf77ee6e";
     let isAdminAuthenticated = false;
+
+    async function sha256Hash(str) {
+      const msgBuffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    let visitorTelemetry = {
+      visits: 0,
+      mobileVisits: 0,
+      desktopVisits: 0,
+      profileViews: {},
+      topSearches: {},
+      activityLog: []
+    };
+
+    function getDeviceDetails() {
+      const ua = navigator.userAgent || '';
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      let os = 'Unknown OS';
+      if (/Android/i.test(ua)) os = 'Android 📱';
+      else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS 📱';
+      else if (/Windows/i.test(ua)) os = 'Windows 💻';
+      else if (/Mac/i.test(ua)) os = 'Mac 💻';
+      else if (/Linux/i.test(ua)) os = 'Linux 🐧';
+
+      let browser = 'Browser';
+      if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome 🌐';
+      else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari 🧭';
+      else if (/Firefox/i.test(ua)) browser = 'Firefox 🦊';
+      else if (/Edg/i.test(ua)) browser = 'Edge 🌊';
+      
+      return {
+        deviceType: isMobile ? 'Mobile 📱' : 'Desktop 💻',
+        os,
+        browser,
+        isMobile
+      };
+    }
+
+    function loadTelemetry() {
+      try {
+        const stored = localStorage.getItem('techrise_telemetry_v2');
+        if (stored) visitorTelemetry = { ...visitorTelemetry, ...JSON.parse(stored) };
+      } catch(e) {}
+    }
+
+    function saveTelemetry() {
+      try {
+        localStorage.setItem('techrise_telemetry_v2', JSON.stringify(visitorTelemetry));
+      } catch(e) {}
+    }
+
+    function logTelemetry(action, details) {
+      loadTelemetry();
+      const dev = getDeviceDetails();
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const logItem = {
+        timestamp: timeStr,
+        date: now.toLocaleDateString(),
+        device: `${dev.deviceType} • ${dev.os} • ${dev.browser}`,
+        action,
+        details
+      };
+
+      if (!visitorTelemetry.activityLog) visitorTelemetry.activityLog = [];
+      visitorTelemetry.activityLog.unshift(logItem);
+      if (visitorTelemetry.activityLog.length > 80) visitorTelemetry.activityLog.pop();
+
+      if (action === 'Page Visit') {
+        visitorTelemetry.visits++;
+        if (dev.isMobile) visitorTelemetry.mobileVisits++;
+        else visitorTelemetry.desktopVisits++;
+      } else if (action === 'Profile Clicked') {
+        if (!visitorTelemetry.profileViews) visitorTelemetry.profileViews = {};
+        visitorTelemetry.profileViews[details] = (visitorTelemetry.profileViews[details] || 0) + 1;
+      } else if (action === 'Directory Search') {
+        if (details && details.trim().length > 1) {
+          if (!visitorTelemetry.topSearches) visitorTelemetry.topSearches = {};
+          const q = details.trim().toLowerCase();
+          visitorTelemetry.topSearches[q] = (visitorTelemetry.topSearches[q] || 0) + 1;
+        }
+      }
+
+      saveTelemetry();
+
+      if (db) {
+        db.collection('telemetry_events').add({
+          ...logItem,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {});
+      }
+
+      if (isAdminAuthenticated) renderAdminDashboard();
+    }
+    window.logTelemetry = logTelemetry;
+
+    function renderAdminDashboard() {
+      loadTelemetry();
+      document.getElementById('admin-stat-visits').textContent = visitorTelemetry.visits || 1;
+      document.getElementById('admin-stat-devices').textContent = `${visitorTelemetry.mobileVisits || 0}📱 / ${visitorTelemetry.desktopVisits || 0}💻`;
+      document.getElementById('admin-stat-alumni').textContent = membersList.length || 827;
+
+      // Count profile views
+      const totalViews = Object.values(visitorTelemetry.profileViews || {}).reduce((a,b) => a+b, 0);
+      document.getElementById('admin-stat-views').textContent = totalViews;
+
+      // Count searches
+      const totalSearches = Object.values(visitorTelemetry.topSearches || {}).reduce((a,b) => a+b, 0);
+      document.getElementById('admin-stat-searches').textContent = totalSearches;
+
+      // Render Top Viewed Profiles
+      const topProfEl = document.getElementById('admin-top-profiles-list');
+      const sortedProfs = Object.entries(visitorTelemetry.profileViews || {}).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      if (sortedProfs.length === 0) {
+        topProfEl.innerHTML = '<span style="color:#8B93A7;">No profile clicks logged yet</span>';
+      } else {
+        topProfEl.innerHTML = sortedProfs.map(([name, count], i) => `
+          <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px;">
+            <span>#${i+1} <strong>${name}</strong></span>
+            <span style="color:#F2B705; font-weight:700;">${count} views</span>
+          </div>
+        `).join('');
+      }
+
+      // Render Top Search Terms
+      const topSearchEl = document.getElementById('admin-top-searches-list');
+      const sortedSearches = Object.entries(visitorTelemetry.topSearches || {}).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      if (sortedSearches.length === 0) {
+        topSearchEl.innerHTML = '<span style="color:#8B93A7;">No searches logged yet</span>';
+      } else {
+        topSearchEl.innerHTML = sortedSearches.map(([term, count], i) => `
+          <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px;">
+            <span>🔍 <em>"${term}"</em></span>
+            <span style="color:#38BDF8; font-weight:700;">${count} times</span>
+          </div>
+        `).join('');
+      }
+
+      // Render Telemetry Activity Stream Log
+      const feedEl = document.getElementById('admin-telemetry-feed');
+      const logs = visitorTelemetry.activityLog || [];
+      if (logs.length === 0) {
+        feedEl.innerHTML = '<span style="color:#8B93A7;">Tracking visitor actions in real time...</span>';
+      } else {
+        feedEl.innerHTML = logs.map(item => `
+          <div style="border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#1FAE7A;">
+              <span>⚡ ${item.action}: <strong style="color:#EAEDF5;">${item.details || ''}</strong></span>
+              <span style="color:#8B93A7;">${item.timestamp}</span>
+            </div>
+            <div style="font-size:0.68rem; color:#8B93A7;">${item.device}</div>
+          </div>
+        `).join('');
+      }
+    }
 
     function checkAdminUrlRoute() {
       const isPathAdmin = window.location.pathname.endsWith('/admin') || window.location.pathname.endsWith('/admin.html');
@@ -2036,6 +2253,7 @@
       if (isAdminAuthenticated) {
         document.getElementById("admin-login-panel").style.display = "none";
         document.getElementById("admin-control-panel").style.display = "block";
+        renderAdminDashboard();
       } else {
         document.getElementById("admin-login-panel").style.display = "block";
         document.getElementById("admin-control-panel").style.display = "none";
@@ -2048,19 +2266,30 @@
     }
     window.closeAdminModal = closeAdminModal;
 
-    function verifyAdminKey() {
+    async function verifyAdminKey() {
       const key = document.getElementById("admin-key-input").value.trim();
-      if (key === ADMIN_SECRET) {
+      const inputHash = await sha256Hash(key + "_tr3_salt");
+      if (inputHash === ADMIN_KEY_HASH) {
         isAdminAuthenticated = true;
         document.getElementById("admin-login-panel").style.display = "none";
         document.getElementById("admin-control-panel").style.display = "block";
         document.getElementById("admin-key-error").style.display = "none";
         document.getElementById("admin-login-btn").textContent = "👑 Master Admin ✓";
+        renderAdminDashboard();
       } else {
         document.getElementById("admin-key-error").style.display = "block";
       }
     }
     window.verifyAdminKey = verifyAdminKey;
+
+    function adminLogout() {
+      isAdminAuthenticated = false;
+      document.getElementById("admin-login-panel").style.display = "block";
+      document.getElementById("admin-control-panel").style.display = "none";
+      document.getElementById("admin-login-btn").textContent = "👑 Master Admin";
+      closeAdminModal();
+    }
+    window.adminLogout = adminLogout;
 
     // ===== ADMIN DELETE MEMBER =====
     function adminDeleteMember() {
@@ -2201,6 +2430,7 @@
     function openMyAccount(memberId, memberName) {
       currentVerifyMemberId = memberId;
       currentVerifyMemberName = memberName;
+      logTelemetry('Profile Clicked', memberName);
       const member = membersList.find(m => m.id === memberId);
       if (!member) return;
 
@@ -2765,8 +2995,13 @@
       checkAdminUrlRoute();
 
       // Search & Filters
+      let searchTelemetryTimer;
       document.getElementById("search-input").addEventListener("input", (e) => {
         searchQuery = e.target.value;
+        clearTimeout(searchTelemetryTimer);
+        if (searchQuery.trim().length > 1) {
+          searchTelemetryTimer = setTimeout(() => { logTelemetry('Directory Search', searchQuery); }, 750);
+        }
         // Auto-reset LGA filter to 'All' when user types a search query to prevent hidden results
         if (searchQuery.trim().length > 0 && currentLgaFilter !== "All") {
           currentLgaFilter = "All";
