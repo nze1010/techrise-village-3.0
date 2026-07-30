@@ -19,12 +19,31 @@ service cloud.firestore {
 
     // Telemetry Events: Public read & write
     match /telemetry_events/{eventId} {
+      allow read, create: if true;
+      allow update, delete: if false;
+    }
+
+    // Shared aggregate telemetry used by the real-time admin dashboard
+    match /telemetry_summary/{documentId} {
+      allow read, write: if true;
+    }
+
+    match /telemetry_profile_views/{profileId} {
+      allow read, write: if true;
+    }
+
+    match /telemetry_searches/{searchId} {
+      allow read, write: if true;
+    }
+
+    // Shared site content such as the active announcement
+    match /site_content/{documentId} {
       allow read, write: if true;
     }
     
-    // Default fallback
+    // Deny access to any collection not explicitly listed above.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

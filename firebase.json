@@ -7,7 +7,30 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      ".git",
+      ".git/**",
+      "**/.git/**",
+      ".firebase/**",
+      ".agents/**",
+      ".codex/**",
+      "firebase-debug.log",
+      "firebase-debug.log.*",
+      "firestore.rules",
+      "README.md",
+      "task.md",
+      "members.json",
+      "api/**",
+      "worker.js",
+      "vercel.json",
+      "local_server.js",
+      "test_jsonbin.js",
+      "targeted_fixes.js",
+      "seed_database_direct.js",
+      "reset_db.js",
+      "parse_beneficiaries.js",
+      "hex_fix.js",
+      "final_emoji_fix.js"
     ],
     "rewrites": [
       {
@@ -17,6 +40,35 @@
       {
         "source": "**",
         "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/admin",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
       }
     ]
   }

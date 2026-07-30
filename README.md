@@ -6,7 +6,7 @@
 
 ## 📁 Project Structure
 
-- `index.html` - Self-contained single-page website (inline CSS & JS, no framework or build step required). Supports browser `localStorage` demo mode out of the box.
+- `index.html` - Self-contained single-page website (inline CSS & JS, no framework or build step required). Firestore is the single source of truth for shared application data and telemetry.
 - `worker.js` - Cloudflare Worker proxy script that safely interfaces with [JSONBin.io](https://jsonbin.io) without exposing API keys in the client browser.
 - `README.md` - Deployment and setup documentation.
 
@@ -14,10 +14,10 @@
 
 ## ⚡ Quick Start (Local Demo Mode)
 
-You can run `index.html` immediately without setting up any backend:
-1. Double click `index.html` or open it in any web browser.
-2. The page runs in **Local Demo Mode** (pre-populated with mock cohort members and saving new entries to your browser's local storage).
-3. A subtle banner above the join form indicates that Local Demo Mode is active.
+Run the included local server and connect to the configured Firebase project:
+1. Run `node local_server.js`.
+2. Open `http://localhost:3000` in a browser.
+3. Members, messages, announcements, Village Hut posts, and telemetry are stored in Firestore rather than browser storage.
 
 ---
 
